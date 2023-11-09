@@ -62,6 +62,7 @@ public class SelfCheckoutStationSoftware {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
+				+ "\t 4. Pay vie Banknote"
 				+ "\t-1. Exit\n"
 				+ "Choice: ");
 	}
@@ -73,6 +74,8 @@ public class SelfCheckoutStationSoftware {
 		scanner = new Scanner(System.in);	
 		
 		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+
+		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("5"), new BigDecimal("10"), new BigDecimal("20"), new BigDecimal("50"), new BigDecimal("100")});
 
 		selfCheckoutStation = new SelfCheckoutStationBronze();
 		selfCheckoutStation.plugIn(PowerGrid.instance());
@@ -144,6 +147,8 @@ public class SelfCheckoutStationSoftware {
 				case 3: //Pay Via Coin
 					sessionSimulation.payViaCoin();
 					break;
+				case 4:	//Pay via Banknote
+					sessionSimulation.payViaBanknote();
 				case -1: //Exit
 					System.out.println("Exiting System");
 					loop = false;
@@ -251,4 +256,41 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("No amount due");
 		}
 	}
+
+	public void payViaBanknote(){
+		if(session.getAmountDue != 0){
+			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStation.banknoteDenominations;
+			System.out.println("Choose denomination of banknote being inserted:");
+			for(BigDecimal denom : denoms){
+				System.out.println("\t" + denom);
+			}
+			System.out.print("Denomination: ");
+			BigDecimal denom = scanner.nextBigDecimal();
+
+			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0){
+				if(denoms.contains(denom)){
+					session.subAmountDue(denom.intValue());
+					if(session.getAmountDue() < 0){
+						System.out.println("Amount fully paid");
+						session.getOrderItem().clear();
+						return;
+					}
+					System.out.println("Amount due:" + session.getAmountDue());
+				} else {
+					System.out.println("Invalid denomination amount, please try again");
+				}
+				System.out.println("Choose denomination of banknote being inserted:");
+				for(BigDecimal denom2 : denoms){
+					System.out.println("\t" + denom2);
+				}
+				System.out.print("Denomination: ");
+				BigDecimal denom = scanner.nextBigDecimal();
+			}
+		} else {
+			System.out.println("No amount due");
+		}
+	}
+
+
+
 }
