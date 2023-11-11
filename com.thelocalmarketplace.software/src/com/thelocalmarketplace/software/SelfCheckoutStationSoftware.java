@@ -251,4 +251,25 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("No amount due");
 		}
 	}
+	public void handleBulkyItem() { 
+		System.out.println("Enter barcode to exempt: ");
+		
+		//Scan item to be exempted
+		BigDecimal bulkyBarcodeInput = scanner.nextBigDecimal();
+		String bulkyBarcodeInputString = bulkyBarcodeInput.toString();
+
+		int l = 0;
+		Numeral[] bulkyBarcodeNumeral = new Numeral[bulkyBarcodeInputString.length()];
+		for(char c : bulkyBarcodeInputString.toCharArray()) {
+			bulkyBarcodeNumeral[l] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+			l++;
+		}
+		Barcode bulkyBarcode = new Barcode(bulkyBarcodeNumeral);
+		//get the characteristics of the item, primarily weight is needed to equate the expected.
+		BarcodedProduct product = database.getBarcodedProductFromDatabase(bulkyBarcode);
+		Double productWeight = product.getExpectedWeight();
+		
+		// 5. Reduces the expected weight in the bagging area by the expected weight of the item
+		session.addTotalExpectedWeight(-productWeight);
+	}
 }
