@@ -164,8 +164,32 @@ public class SelfCheckoutStationSoftware {
 		scanner.close();
 	}
 	
-
-
+	
+	public void removeItem(Barcode barcode) {
+		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
+		// If customer tries to remove item before having any items.
+		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
+		if (session.getOrderItem() == null) {
+			System.out.println("No order has been scanned! Can't remove something that is not there.");
+		}
+		//Items have been previously added
+		else {
+			// Find item in list
+			BarcodedItem itemToRemove = session.findItem(barcode);
+			//Item doesn't exist in user current session
+			if(itemToRemove == null) {
+				System.out.println("The item does not exist in your order");
+			}
+			// Item exist, remove from session list and bagging obj list
+			else {
+				selfCheckoutStation.baggingArea.removeAnItem(itemToRemove);
+				session.removeOrderItem(itemToRemove);
+				session.subtractTotalExpectedWeight(product.getExpectedWeight());
+				// Need to adjust discrepancy check, how does this code implement it?
+			}
+		}		
+	}
+ 
 	public void scanBarcodedProduct(Barcode barcode) {
 		
 		//3. Determines the characteristics (weight and cost) of the product associated with the barcode.
