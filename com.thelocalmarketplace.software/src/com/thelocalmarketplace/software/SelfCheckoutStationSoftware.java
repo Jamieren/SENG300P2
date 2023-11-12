@@ -182,7 +182,7 @@ public class SelfCheckoutStationSoftware {
 			}
 			// Item exist, remove from session list and bagging obj list
 			else {
-				selfCheckoutStation.baggingArea.removeAnItem(itemToRemove);
+				selfCheckoutStationBronze.baggingArea.removeAnItem(itemToRemove);
 				session.removeOrderItem(itemToRemove);
 				session.subtractTotalExpectedWeight(product.getExpectedWeight());
 				// Need to adjust discrepancy check, how does this code implement it?
