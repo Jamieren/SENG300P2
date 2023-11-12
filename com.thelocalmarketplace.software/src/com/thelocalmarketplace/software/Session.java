@@ -2,7 +2,9 @@ package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Iterator;
 
+import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 /*
@@ -55,6 +57,17 @@ public class Session {
     public void newOrderItem(BarcodedItem item) {
     	orderItems.add(item);
     }
+    public void removeOrderItem(BarcodedItem item) {
+    	orderItems.remove(item);
+    }
+    public BarcodedItem findItem(Barcode barcode) {
+    	for(BarcodedItem item: orderItems) {
+    		if(item.getBarcode() == barcode) {
+    			return item;
+    		}
+    	}
+    	return null;
+    }
     
     public double getTotalExpectedWeight() {
     	return totalExpectedWeight;
@@ -62,6 +75,9 @@ public class Session {
     
     public void addTotalExpectedWeight(double weight) {
     	totalExpectedWeight += weight;
+    }
+    public void subtractTotalExpectedWeight(double weight) {
+    	totalExpectedWeight -= weight;
     }
     
     public double getAmountDue() {
