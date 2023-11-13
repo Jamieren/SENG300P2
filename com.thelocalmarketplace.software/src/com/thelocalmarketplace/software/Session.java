@@ -1,15 +1,11 @@
 package com.thelocalmarketplace.software;
 
-import java.math.BigDecimal;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
-import com.thelocalmarketplace.hardware.BarcodedProduct;
-/*
- * StartSession controls whether the SelfCheckoutStation is in an active state ready for customer interaction 
- * */
 
 public class Session {
 
@@ -40,7 +36,13 @@ public class Session {
     }
 
     public void activate() {
-        isActive = true;
+		if(isActive()==false) {
+			System.out.println("A session has already been started, the system cannot start a new session "
+							 + "while in an active session.");
+		} else {
+			isActive = true;
+			System.out.println("Successfully started a session.");
+		}
     }
 
     public void deactivate() {
@@ -92,20 +94,47 @@ public class Session {
     	amountDue -= amount;
     }
     
-    public void setWeightDiscrepancy(BarcodedProduct product, BigDecimal weight) {
-    	weightDiscrepancy = new WeightDiscrepancy(product, weight);
-    }
-    
-    public void setNoWeightDiscrepancy() {
-    	weightDiscrepancy = null;
-    }
-    
-    public boolean hasWeightDiscrepancy() {
-    	return weightDiscrepancy != null;
-    }
-    
-    public WeightDiscrepancy getWeightDiscrepancy() {
-    	return weightDiscrepancy;
-    }
+	public void promptEnterToContinue(){
 
+		System.out.println("Welcome!");
+		System.out.println("Press \"ENTER\" to continue");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void printMenu() {
+		if(getOrderItem().size() != 0) {
+			System.out.println("\n============================\n"
+								+ "Order Items:");
+			int i = 1;
+			for(BarcodedItem bi : getOrderItem()) {
+				System.out.println("\t   " + i + ") " + bi.getBarcode() + " : " + bi.getMass().inGrams() + " gramms");
+				i++;
+			}
+			System.out.println("Total due: " + getAmountDue());
+		}
+		
+		System.out.print("\n============================\n"
+				+ "Choose option:\n"
+				+ "\t 1. Activate Session\n"
+				+ "\t 2. Add Item\n"
+				+ "\t 3. Pay via Coin\n"
+				+ "\t 4. Exit\n"
+				+ "Choice: ");
+	}
+         
+    public void weightDiscrepancyMessage() {
+		System.out.print("\n============================\n"
+				 + "Weight Discrepancy has been detected\n"
+				 + "Product: " + weightDiscrepancy.getProduct().getDescription() + "caused discrepancy\n"
+				 + "\tHas weight " + weightDiscrepancy.getWeight() + ", was expecting " + getTotalExpectedWeight() + "\n\n"
+				 + "\t 1. Add/Remove item\n"
+				 + "\t 2. Do-Not-Bag Request\n"
+				 + "\t 3. Attendant Approval\n"
+				 + "\t4. Exit\n"
+				 + "Choice: ");
+    }
 }
