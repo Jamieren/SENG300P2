@@ -8,10 +8,19 @@ import java.util.Scanner;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.card.CardReaderGold;
+import com.jjjwelectronics.printer.ReceiptPrinterBronze;
+import com.jjjwelectronics.scale.ElectronicScaleBronze;
+import com.jjjwelectronics.scale.ElectronicScaleGold;
+import com.jjjwelectronics.scale.ElectronicScaleSilver;
 import com.jjjwelectronics.scanner.Barcode;
+import com.jjjwelectronics.scanner.BarcodeScannerBronze;
+import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 import powerutility.PowerGrid;
 
@@ -22,8 +31,12 @@ import powerutility.PowerGrid;
 
 public class SelfCheckoutStationSoftware {
 
-	private static SelfCheckoutStationBronze selfCheckoutStation;
+	private static SelfCheckoutStationBronze selfCheckoutStationBronze;
 
+	private static SelfCheckoutStationSilver selfCheckoutStationSilver;
+
+	private static SelfCheckoutStationGold selfCheckoutStationGold;
+	
 	private static SelfCheckoutStationSoftware sessionSimulation;
 
 	private static TheLocalMarketPlaceDatabase database;
@@ -32,40 +45,29 @@ public class SelfCheckoutStationSoftware {
 
 	private static Scanner scanner;
 	
-	WeightDiscrepancy discrepancy;
+	private static ElectronicScaleBronze bronzeBaggingArea;
+	
+	private static ElectronicScaleBronze bronzeScanningArea;
 
-	public void promptEnterToContinue(){
+	private static ElectronicScaleSilver silverScale;
+	
+	private static ElectronicScaleGold goldScale;
+	
+	private static BarcodeScannerBronze bronzeMainScanner;
+	
+	private static BarcodeScannerSilver silverMainScanner;
 
-		System.out.println("Welcome!");
-		System.out.println("Press \"ENTER\" to continue");
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	private static BarcodeScannerBronze bronzeHandheldScanner;
+	
+	private static CardReaderGold goldCardReader;
 
-	private void printMenu() {
-		if(session != null && session.getOrderItem().size() != 0) {
-			System.out.println("\n============================\n"
-								+ "Order Items:");
-			int i = 1;
-			for(BarcodedItem bi : session.getOrderItem()) {
-				System.out.println("\t   " + i + ") " + bi.getBarcode() + " : " + bi.getMass().inGrams() + " gramms");
-				i++;
-			}
-			System.out.println("Total due: " + session.getAmountDue());
-		}
-		
-		System.out.print("\n============================\n"
-				+ "Choose option:\n"
-				+ "\t 1. Activate Session\n"
-				+ "\t 2. Add Item\n"
-				+ "\t 3. Pay via Coin\n"
-				+ "\t 4. Pay vie Banknote"
-				+ "\t-1. Exit\n"
-				+ "Choice: ");
-	}
+	private static ReceiptPrinterBronze bronzePrinter;
+	
+	private static WeightDiscrepancy discrepancy;
+
+
+
+
 
 	public static void main(String[] args) {
 
@@ -75,108 +77,119 @@ public class SelfCheckoutStationSoftware {
 		
 		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
 
-		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("5"), new BigDecimal("10"), new BigDecimal("20"), new BigDecimal("50"), new BigDecimal("100")});
-
-		selfCheckoutStation = new SelfCheckoutStationBronze();
-		selfCheckoutStation.plugIn(PowerGrid.instance());
-		selfCheckoutStation.turnOn();
+		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
+		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
+		selfCheckoutStationBronze.turnOn();
 		
 		database = TheLocalMarketPlaceDatabase.getInstance();
 
-
-		sessionSimulation.promptEnterToContinue();
+		session.promptEnterToContinue();
 
 		//Ready for more commands from customer
 		
-		sessionSimulation.printMenu();
+		session.printMenu();
 		int choice = scanner.nextInt();
 
-		boolean loop = true;
-		while(loop) {
-			if(session != null && session.getWeightDiscrepancy() != null && session.hasWeightDiscrepancy()) {
-				System.out.print("\n============================\n"
-								 + "Weight Discrepancy has been detected\n"
-								 + "Product: " + session.getWeightDiscrepancy().getProduct().getDescription() + "caused discrepancy\n"
-								 + "\tHas weight " + session.getWeightDiscrepancy().getWeight() + ", was expecting " + session.getTotalExpectedWeight() + "\n\n"
-								 + "\t 1. Add/Remove item\n"
-								 + "\t 2. Do-Not-Bag Request\n"
-								 + "\t 3. Attendant Approval\n"
-								 + "\t-1. Exit\n"
-								 + "Choice: ");
-				int wChoice = scanner.nextInt();
-				switch (wChoice) {
-				case 1:
-					System.out.println("Item has been added/removed from bagging area.");
-					session.setNoWeightDiscrepancy();
-					sessionSimulation.printMenu();
-					choice = scanner.nextInt();
-					break;
-				case 2:
-					System.out.println("No-Bag-Request has been activated.");
-					session.setNoWeightDiscrepancy();
-					sessionSimulation.printMenu();
-					choice = scanner.nextInt();
-					break;
-				case 3:
-					System.out.println("Attendant has approved weight discrepancy.");
-					session.setNoWeightDiscrepancy();
-					sessionSimulation.printMenu();
-					choice = scanner.nextInt();
-					break;
-				}
-			} else {
-				switch(choice) {
-				case 1: //Activate Session
-					sessionSimulation.activateSession();
-					break;
-				case 2: //Add Item
-					System.out.print("Enter barcode to add: ");
-					BigDecimal barcodeInput = scanner.nextBigDecimal();
-	
-					String barcodeInputString = barcodeInput.toString();
-	
-					int i = 0;
-					Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
-					for(char c : barcodeInputString.toCharArray()) {
-						barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
-						i++;
+		boolean receieptPrinted = false;
+		while(receieptPrinted == false) {
+			if(session != null && discrepancy.hasWeightDiscrepancy()) {
+				session.weightDiscrepancyMessage();
+				int weightChoice = scanner.nextInt();
+				while (weightChoice != 4) {
+					if (weightChoice == 1) {
+						System.out.println("Item has been added/removed from bagging area.");
+						discrepancy.setNoWeightDiscrepancy();
+						if (discrepancy.hasWeightDiscrepancy()==false) {
+							weightChoice = 4;
+						}
 					}
-					Barcode barcode = new Barcode(barcodeNumeral);
-					sessionSimulation.scanBarcodedProduct(barcode);
-					break;
-				case 3: //Pay Via Coin
-					sessionSimulation.payViaCoin();
-					break;
-				case 4:	//Pay via Banknote
-					sessionSimulation.payViaBanknote();
-				case -1: //Exit
-					System.out.println("Exiting System");
-					loop = false;
-					System.exit(0);
-					break;
+					else if (weightChoice == 2) {
+						System.out.println("No-Bag-Request has been activated.");
+						discrepancy.setNoWeightDiscrepancy();
+						if (discrepancy.hasWeightDiscrepancy()==false) {
+							weightChoice = 4;
+						}
+					}
+					else if (weightChoice == 3) {
+						System.out.println("Attendant has approved weight discrepancy.");
+						discrepancy.setNoWeightDiscrepancy();
+						if (discrepancy.hasWeightDiscrepancy()==false) {
+							weightChoice = 4;
+						}
+					}
+					else {
+						System.out.print("\n============================\n"
+								 + "Invalid selection, please try again.\n");
+						session.weightDiscrepancyMessage();
+						weightChoice = scanner.nextInt();
+					}
 				}
-				if(!session.hasWeightDiscrepancy()) {
-					sessionSimulation.printMenu();
-					choice = scanner.nextInt();
+				session.printMenu();
+				choice = scanner.nextInt();
+			} 
+			if (choice == 1) { //Activate Session
+				session.activate();
+				
+			}
+			else if (choice == 2) { //Add Item
+				System.out.print("Enter barcode to add: ");
+				BigDecimal barcodeInput = scanner.nextBigDecimal();
+				
+				String barcodeInputString = barcodeInput.toString();
+	
+				int i = 0;
+				Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+				for(char c : barcodeInputString.toCharArray()) {
+					barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+					i++;
 				}
+				Barcode barcode = new Barcode(barcodeNumeral);
+				sessionSimulation.scanBarcodedProduct(barcode);
+				
+			}
+			else if (choice == 3) { //Pay Via Coin
+				sessionSimulation.payViaCoin();
+//				break;
+			}
+			else if (choice == 4) { //Exit
+				System.out.println("Exiting System");
+				receieptPrinted = true;
+				System.exit(0);
+			}
+			if(!discrepancy.hasWeightDiscrepancy()) {
+				session.printMenu();
+				choice = scanner.nextInt();
 			}
 		}
-
 		scanner.close();
 	}
 	
-	public void activateSession() {
-		session = Session.getInstance();
-		if(session.isActive()) {
-			System.out.println("A session has already been started, the system cannot start a new session "
-							 + "while in an active session.");
-		} else {
-			session.activate();
-			System.out.println("Successfully started a session.");
+	
+	public void removeItem(Barcode barcode) {
+		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
+		// If customer tries to remove item before having any items.
+		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
+		if (session.getOrderItem() == null) {
+			System.out.println("No order has been scanned! Can't remove something that is not there.");
 		}
+		//Items have been previously added
+		else {
+			// Find item in list
+			BarcodedItem itemToRemove = session.findItem(barcode);
+			//Item doesn't exist in user current session
+			if(itemToRemove == null) {
+				System.out.println("The item does not exist in your order");
+			}
+			// Item exist, remove from session list and bagging obj list
+			else {
+				selfCheckoutStation.baggingArea.removeAnItem(itemToRemove);
+				session.removeOrderItem(itemToRemove);
+				session.subtractTotalExpectedWeight(product.getExpectedWeight());
+				// Need to adjust discrepancy check, how does this code implement it?
+			}
+		}		
 	}
-
-
+ 
 	public void scanBarcodedProduct(Barcode barcode) {
 		
 		//3. Determines the characteristics (weight and cost) of the product associated with the barcode.
@@ -192,7 +205,7 @@ public class SelfCheckoutStationSoftware {
 			case "YES":
 				//4. Updates the expected weight from the bagging area.
 				BarcodedItem item = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
-				selfCheckoutStation.baggingArea.addAnItem(item);
+				selfCheckoutStationBronze.baggingArea.addAnItem(item);
 				session.newOrderItem(item);
 				System.out.println(product.getDescription() + " was added to bagging area");
 				
@@ -201,21 +214,22 @@ public class SelfCheckoutStationSoftware {
 				Mass totalExpectedMass = new Mass(session.getTotalExpectedWeight());
 
 				try {
-					int diff = totalExpectedMass.inGrams().compareTo(selfCheckoutStation.baggingArea.getCurrentMassOnTheScale().inGrams());
+					int diff = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 					if(diff != 0) {
-						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + selfCheckoutStation.baggingArea.getCurrentMassOnTheScale().inGrams());
-						session.setWeightDiscrepancy(product, selfCheckoutStation.baggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						discrepancy.setWeightDiscrepancy(true);
+									//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 						System.out.println("Weight discrepancy detected");
 					}
 				} catch (OverloadedDevice e) {
 					
 				}
 				break;
-			case "NO":
-				System.out.println(product.getDescription() + " was not added to bagging area");
-				break;
-			default:
-				System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
+				case "NO":
+					System.out.println(product.getDescription() + " was not added to bagging area");
+					break;
+					default:
+					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
 			}
 		} else {
 			System.out.println("Invalid Barcode");
@@ -225,7 +239,7 @@ public class SelfCheckoutStationSoftware {
 	
 	public void payViaCoin() {
 		if(session.getAmountDue() != 0) {
-			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStation.coinDenominations;
+			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
 			System.out.println("Choose denomination of coin being inserted:");
 			for(BigDecimal denom : denoms) {
 				System.out.println("\t" + denom);
@@ -256,7 +270,10 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("No amount due");
 		}
 	}
-
+	
+	
+	
+	
 	public void payViaBanknote(){
 		if(session.getAmountDue != 0){
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStation.banknoteDenominations;
@@ -266,15 +283,23 @@ public class SelfCheckoutStationSoftware {
 			}
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
+			BigDecimal totalPaid = BigDecimal.ZERO;
 
 			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0){
 				if(denoms.contains(denom)){
 					session.subAmountDue(denom.intValue());
-					if(session.getAmountDue() < 0){
-						System.out.println("Amount fully paid");
-						session.getOrderItem().clear();
-						return;
-					}
+					totalPaid = totalPaid.add(denom);
+
+					if (session.getAmountDue() <= 0) {
+                    if (session.getAmountDue() < 0) {
+                        BigDecimal change = session.getAmountDue().negate();ecl
+                        System.out.println("Fully paid amount, change: " + change);
+                    } else {
+                        System.out.println("Fully paid amount");
+                    }
+                    session.getOrderItem().clear();
+                    return;
+                }
 					System.out.println("Amount due:" + session.getAmountDue());
 				} else {
 					System.out.println("Invalid denomination amount, please try again");
@@ -286,11 +311,14 @@ public class SelfCheckoutStationSoftware {
 				System.out.print("Denomination: ");
 				BigDecimal denom = scanner.nextBigDecimal();
 			}
+
+			 if (totalPaid.compareTo(session.getAmountDue()) > 0) {
+            // Calculate and return change to the user if they paid more than the amount due.
+            BigDecimal change = totalPaid.subtract(session.getAmountDue());
+            System.out.println("Change to return: " + change);
+        }
 		} else {
 			System.out.println("No amount due");
 		}
 	}
-
-
-
 }
