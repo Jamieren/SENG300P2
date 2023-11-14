@@ -185,7 +185,7 @@ public class SelfCheckoutStationSoftware {
 				selfCheckoutStationBronze.baggingArea.removeAnItem(itemToRemove);
 				session.removeOrderItem(itemToRemove);
 				session.subtractTotalExpectedWeight(product.getExpectedWeight());
-				// Need to adjust discrepancy check, how does this code implement it?
+				
 			}
 		}		
 	}
