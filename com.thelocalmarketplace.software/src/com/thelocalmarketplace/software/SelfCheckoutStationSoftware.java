@@ -3,6 +3,8 @@ package com.thelocalmarketplace.software;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 import com.jjjwelectronics.Mass;
@@ -182,7 +184,7 @@ public class SelfCheckoutStationSoftware {
 			}
 			// Item exist, remove from session list and bagging obj list
 			else {
-				selfCheckoutStation.baggingArea.removeAnItem(itemToRemove);
+				selfCheckoutStationBronze.baggingArea.removeAnItem(itemToRemove);
 				session.removeOrderItem(itemToRemove);
 				session.subtractTotalExpectedWeight(product.getExpectedWeight());
 				// Need to adjust discrepancy check, how does this code implement it?
@@ -210,7 +212,7 @@ public class SelfCheckoutStationSoftware {
 				System.out.println(product.getDescription() + " was added to bagging area");
 				
 				session.addTotalExpectedWeight(product.getExpectedWeight());
-				session.addAmountDue(product.getPrice());
+				session.addAmountDue(BigDecimal.valueOf(product.getPrice()));
 				Mass totalExpectedMass = new Mass(session.getTotalExpectedWeight());
 
 				try {
@@ -238,7 +240,7 @@ public class SelfCheckoutStationSoftware {
 	
 	
 	public void payViaCoin() {
-		if(session.getAmountDue() != 0) {
+		if(session.getAmountDue().compareTo(BigDecimal.ZERO) != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
 			System.out.println("Choose denomination of coin being inserted:");
 			for(BigDecimal denom : denoms) {
@@ -247,10 +249,10 @@ public class SelfCheckoutStationSoftware {
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
 
-			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
+			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue().compareTo(BigDecimal.ZERO) > 0) {
 				if(denoms.contains(denom)) {
-					session.subAmountDue(denom.intValue());
-					if(session.getAmountDue() <= 0) {
+					session.subAmountDue(BigDecimal.valueOf(denom.intValue()));
+					if(session.getAmountDue().compareTo(BigDecimal.ZERO) < 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
 						return;
@@ -274,51 +276,51 @@ public class SelfCheckoutStationSoftware {
 	
 	
 	
-	public void payViaBanknote(){
-		if(session.getAmountDue != 0){
-			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStation.banknoteDenominations;
-			System.out.println("Choose denomination of banknote being inserted:");
-			for(BigDecimal denom : denoms){
-				System.out.println("\t" + denom);
-			}
-			System.out.print("Denomination: ");
-			BigDecimal denom = scanner.nextBigDecimal();
-			BigDecimal totalPaid = BigDecimal.ZERO;
+	public void payViaBanknote() {
+	    if (session.getAmountDue().compareTo(BigDecimal.ZERO) != 0) {
+	    	List<BigDecimal> denoms = new ArrayList<>(Arrays.asList(selfCheckoutStationBronze.banknoteDenominations));
+	        System.out.println("Choose denomination of banknote being inserted:");
+	        for (BigDecimal denom : denoms) {
+	            System.out.println("\t" + denom);
+	        }
+	        System.out.print("Denomination: ");
+	        BigDecimal denom = scanner.nextBigDecimal();
+	        BigDecimal totalPaid = BigDecimal.ZERO;
 
-			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0){
-				if(denoms.contains(denom)){
-					session.subAmountDue(denom.intValue());
-					totalPaid = totalPaid.add(denom);
+	        while (denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue().compareTo(BigDecimal.ZERO) > 0) {
+	            if (denoms.contains(denom)) {
+	            	session.subAmountDue(BigDecimal.valueOf(denom.intValue()));
+	                totalPaid = totalPaid.add(denom);
 
-					if (session.getAmountDue() <= 0) {
-                    if (session.getAmountDue() < 0) {
-                        BigDecimal change = session.getAmountDue().negate();ecl
-                        System.out.println("Fully paid amount, change: " + change);
-                    } else {
-                        System.out.println("Fully paid amount");
-                    }
-                    session.getOrderItem().clear();
-                    return;
-                }
-					System.out.println("Amount due:" + session.getAmountDue());
-				} else {
-					System.out.println("Invalid denomination amount, please try again");
-				}
-				System.out.println("Choose denomination of banknote being inserted:");
-				for(BigDecimal denom2 : denoms){
-					System.out.println("\t" + denom2);
-				}
-				System.out.print("Denomination: ");
-				BigDecimal denom = scanner.nextBigDecimal();
-			}
+	                if (session.getAmountDue().compareTo(BigDecimal.ZERO) <= 0) {
+	                    if (session.getAmountDue().compareTo(BigDecimal.ZERO) < 0) {
+	                        BigDecimal change = session.getAmountDue().negate();
+	                        System.out.println("Fully paid amount, change: " + change);
+	                    } else {
+	                        System.out.println("Fully paid amount");
+	                    }
+	                    session.getOrderItem().clear();
+	                    return;
+	                }
+	                System.out.println("Amount due:" + session.getAmountDue());
+	            } else {
+	                System.out.println("Invalid denomination amount, please try again");
+	            }
+	            System.out.println("Choose denomination of banknote being inserted:");
+	            for (BigDecimal denom2 : denoms) {
+	                System.out.println("\t" + denom2);
+	            }
+	            System.out.print("Denomination: ");
+	            denom = scanner.nextBigDecimal();
+	        }
 
-			 if (totalPaid.compareTo(session.getAmountDue()) > 0) {
-            // Calculate and return change to the user if they paid more than the amount due.
-            BigDecimal change = totalPaid.subtract(session.getAmountDue());
-            System.out.println("Change to return: " + change);
-        }
-		} else {
-			System.out.println("No amount due");
-		}
+	        if (totalPaid.compareTo(session.getAmountDue()) > 0) {
+	            BigDecimal change = totalPaid.subtract(session.getAmountDue());
+	            System.out.println("Change to return: " + change);
+	        }
+	    } else {
+	        System.out.println("No amount due");
+	    }
 	}
+
 }
