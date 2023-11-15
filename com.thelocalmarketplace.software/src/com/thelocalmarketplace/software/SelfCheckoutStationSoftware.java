@@ -167,15 +167,11 @@ public class SelfCheckoutStationSoftware {
 	
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
-		// Barcode product does not exist in store database
-		try {
-			BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
-			}
-		catch(NullPointerException e) {
-				System.out.println("That item doesn't exist in the database!");
-			}
+		// Barcode product should exist in database since they scanning into database.
+		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
+		
 		// If customer tries to remove item before having any items.
-		if (session.getOrderItem() == null) {
+		if (session.getOrderItem().isEmpty()) {
 			System.out.println("No order has been scanned! Can't remove something that is not there.");
 		}
 		//Items have been previously added
@@ -286,10 +282,16 @@ public class SelfCheckoutStationSoftware {
 	public void initDatabase() {
 		this.database = TheLocalMarketPlaceDatabase.getInstance();
 	}
+	public void initSession() {
+		this.session = Session.getInstance();
+	}
 	public SelfCheckoutStationBronze getSelfStationBronze() {
 		return this.selfCheckoutStationBronze;
 	}
 	public TheLocalMarketPlaceDatabase getDatabase() {
 		return this.database;
+	}
+	public Session getSession() {
+		return this.session;
 	}
 }

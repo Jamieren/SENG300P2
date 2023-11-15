@@ -1,5 +1,6 @@
 package com.thelocalmarketplace.software.test;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
+import com.thelocalmarketplace.software.Session;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 
 public class RemoveItemTest {
@@ -33,31 +35,52 @@ public class RemoveItemTest {
 	
 	SelfCheckoutStationSoftware software;
 	TheLocalMarketPlaceDatabase softwareDatabase;
-	SelfCheckoutStationBronze softwareStationBronze;
+	Session session;
 	
 	
 	@Before
 	public void setup() {
 		software = new SelfCheckoutStationSoftware();
-		softwareStationBronze.configureCurrency(Currency.getInstance("CAD"));
-		softwareStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
-		softwareStationBronze.configureBanknoteStorageUnitCapacity(10);
-		softwareStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
-		softwareStationBronze.configureCurrency(Currency.getInstance("CAD"));
-		softwareStationBronze.configureCoinStorageUnitCapacity(10);
-		softwareStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
+		SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		
-
-	
-		SelfCheckoutStationBronze bronze = new SelfCheckoutStationBronze();
+		software.initDatabase();
+		software.initSelfStationBronze();
+		software.initSession();
 		
-		ProductDatabases.BARCODED_PRODUCT_DATABASE.put(testBarcode1, testProduct1);
+		software.getDatabase().addBarcodedProductToDatabase(testProduct1);
+		software.getDatabase().addBarcodedProductToDatabase(testProduct2);
 		
 	}
 	
-	@Test(expected = NullPointerException.class)
-	public void productNotInDatabase() {
+	@Test
+	public void removeItemBeforeScanned() {
 		software.removeItem(testBarcode2);
-		
+		assertTrue(software.getSession().getOrderItem().isEmpty());
+	}
+	@Test
+	public void sessionContainItemRemovingItem() {
+		// Item was scanned added to bagging area and session item list
+		software.getSelfStationBronze().baggingArea.addAnItem(testItem1);
+		software.getSession().newOrderItem(testItem1);
+		//Get weight
+		BarcodedProduct product = software.getDatabase().getBarcodedProductFromDatabase(testBarcode1);
+		//Adjust weight
+		software.getSession().addTotalExpectedWeight(product.getExpectedWeight());
+		//Remove Item From Session
+		software.removeItem(testBarcode1);
+		assertTrue(software.getSession().getTotalExpectedWeight() == 0);
+	}
+	@Test
+	public void itemNotinSessionAndRemoveItem() {
+		software.getSelfStationBronze().baggingArea.addAnItem(testItem1);
+		software.getSession().newOrderItem(testItem1);
+		software.removeItem(testBarcode2);
 	}
 }
