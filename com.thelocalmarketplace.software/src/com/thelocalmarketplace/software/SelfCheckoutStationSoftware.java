@@ -64,6 +64,8 @@ public class SelfCheckoutStationSoftware {
 	private static ReceiptPrinterBronze bronzePrinter;
 	
 	private static WeightDiscrepancy discrepancy;
+	
+	private static HandheldBarcodeScanner handheldScanner;
 
 
 
@@ -132,19 +134,10 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 2) { //Add Item
-				System.out.print("Enter barcode to add: ");
-				BigDecimal barcodeInput = scanner.nextBigDecimal();
-				
-				String barcodeInputString = barcodeInput.toString();
-	
-				int i = 0;
-				Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
-				for(char c : barcodeInputString.toCharArray()) {
-					barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
-					i++;
-				}
-				Barcode barcode = new Barcode(barcodeNumeral);
-				sessionSimulation.scanBarcodedProduct(barcode);
+				// Simulate the scanning process and get the scanned barcode
+			    Barcode scannedBarcode = sessionSimulation.simulateScanningProcess();
+			    // Pass the scanned barcode to the scanBarcodedProduct method
+			    sessionSimulation.scanBarcodedProduct(scannedBarcode);
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
@@ -191,6 +184,26 @@ public class SelfCheckoutStationSoftware {
 			}
 		}		
 	}
+	
+	public Barcode simulateScanningProcess() {
+        System.out.println("Please scan an item using either the built-in scanner or the handheld scanner.");
+
+        // This is a placeholder for the actual scanning process.
+ 
+        System.out.print("Enter the barcode scanned by either scanner: ");
+        BigDecimal barcodeInput = scanner.nextBigDecimal();
+        scanner.nextLine(); // To consume the rest of the line
+
+        String barcodeInputString = barcodeInput.toString();
+        Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+        int i = 0;
+        for (char c : barcodeInputString.toCharArray()) {
+            barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+            i++;
+        }
+
+		return new Barcode(barcodeNumeral);
+    }
  
 	public void scanBarcodedProduct(Barcode barcode) {
 		
@@ -294,4 +307,5 @@ public class SelfCheckoutStationSoftware {
 	public Session getSession() {
 		return this.session;
 	}
+	
 }
