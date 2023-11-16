@@ -167,9 +167,11 @@ public class SelfCheckoutStationSoftware {
 	
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
-		// If customer tries to remove item before having any items.
+		// Barcode product should exist in database since they scanning into database.
 		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
-		if (session.getOrderItem() == null) {
+		
+		// If customer tries to remove item before having any items.
+		if (session.getOrderItem().isEmpty()) {
 			System.out.println("No order has been scanned! Can't remove something that is not there.");
 		}
 		//Items have been previously added
@@ -182,10 +184,10 @@ public class SelfCheckoutStationSoftware {
 			}
 			// Item exist, remove from session list and bagging obj list
 			else {
-				selfCheckoutStation.baggingArea.removeAnItem(itemToRemove);
+				selfCheckoutStationBronze.baggingArea.removeAnItem(itemToRemove);
 				session.removeOrderItem(itemToRemove);
 				session.subtractTotalExpectedWeight(product.getExpectedWeight());
-				// Need to adjust discrepancy check, how does this code implement it?
+				
 			}
 		}		
 	}
@@ -269,5 +271,27 @@ public class SelfCheckoutStationSoftware {
 		} else {
 			System.out.println("No amount due");
 		}
+	}
+	// Getters For Testing Purposes
+	public void initSelfStationBronze() {
+		
+		this.selfCheckoutStationBronze = new SelfCheckoutStationBronze();
+		this.selfCheckoutStationBronze.plugIn(PowerGrid.instance());
+		this.selfCheckoutStationBronze.turnOn();
+	}
+	public void initDatabase() {
+		this.database = TheLocalMarketPlaceDatabase.getInstance();
+	}
+	public void initSession() {
+		this.session = Session.getInstance();
+	}
+	public SelfCheckoutStationBronze getSelfStationBronze() {
+		return this.selfCheckoutStationBronze;
+	}
+	public TheLocalMarketPlaceDatabase getDatabase() {
+		return this.database;
+	}
+	public Session getSession() {
+		return this.session;
 	}
 }
