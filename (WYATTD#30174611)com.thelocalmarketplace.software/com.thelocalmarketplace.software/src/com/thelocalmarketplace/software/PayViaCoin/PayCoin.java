@@ -74,4 +74,10 @@ public class PayCoin {
         double zero = 0.00;
         return new BigDecimal(zero); // Return 0.0 if no change is given
     }
+    
+    public BigDecimal returnChange() {
+    	BigDecimal amountDue;
+    }
 }
+
+
