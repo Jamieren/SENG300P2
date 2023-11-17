@@ -228,7 +228,27 @@ public class SelfCheckoutStationSoftware {
 				}
 				break;
 				case "NO":
-					System.out.println(product.getDescription() + " was not added to bagging area");
+					// Process bulky item
+					handleBulkyItem(product);
+					
+					// Process the item as if it was being added to bagging area. Weight reduction in handleBulkyItem should make this work without a wDiscrepancy
+					BarcodedItem exemptItem = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
+					session.newOrderItem(exemptItem);
+					// Reallocate expected weight as if item was added.
+					session.addTotalExpectedWeight(product.getExpectedWeight());
+					
+					// Check for discrepancy.
+					Mass expectedMass = new Mass(session.getTotalExpectedWeight());
+					try {
+						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						if(diff != 0) {
+							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							discrepancy.setWeightDiscrepancy(true);
+							System.out.println("Weight discrepancy detected");
+						}
+					} catch (OverloadedDevice e) {
+						// do nothing or else
+					}
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
@@ -272,6 +292,23 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("No amount due");
 		}
 	}
+	
+	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
+		Double productWeight = toBeExempted.getExpectedWeight();
+		
+		// 3. [SIMULATE] Signals to the Attendant that a no-bagging request is in progress.
+		// 4. Signals to the System that the request is approved.
+		System.out.println("Bagging exemption approved.");
+		// 5. Reduces the expected weight in the bagging area by the expected weight of the item
+		session.addTotalExpectedWeight(-productWeight);
+		
+		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
+	}
+	
+	
+	
+	
+	
 	// Getters For Testing Purposes
 	public void initSelfStationBronze() {
 		
