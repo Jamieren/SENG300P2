@@ -65,13 +65,6 @@ public class SelfCheckoutStationSoftware {
 	private static ReceiptPrinterBronze bronzePrinter;
 	
 	private static WeightDiscrepancy discrepancy;
-	
-	
-	private static Coin loonie, toonie, dime, nickel, quarter;
-	
-	
-
-
 
 
 
@@ -154,7 +147,7 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
-				sessionSimulation.payViaCoin();
+				sessionSimulation.payWithCoin();
 //				break;
 			}
 			else if (choice == 4) { //Exit
@@ -265,7 +258,7 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	// potentially put this in a class of its own
-	public void payViaCoin() {
+	public void payWithCoin() {
 	
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
@@ -273,7 +266,7 @@ public class SelfCheckoutStationSoftware {
 			for(BigDecimal denom : denoms) {
 				System.out.println("\t" + denom);
 			}
-			// replace this with what is put in via CoinSlot 
+			// no GUI yet to allow us to insert coin easily so use scanner to tell if coin is inserted 
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
 
