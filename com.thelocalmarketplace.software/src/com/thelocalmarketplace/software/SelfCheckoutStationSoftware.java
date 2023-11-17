@@ -18,6 +18,9 @@ import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.coin.Coin;
+import com.tdc.coin.CoinDispenserBronze;
+import com.tdc.coin.CoinDispenserGold;
+import com.tdc.coin.CoinSlot;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
@@ -65,8 +68,17 @@ public class SelfCheckoutStationSoftware {
 	private static ReceiptPrinterBronze bronzePrinter;
 	
 	private static WeightDiscrepancy discrepancy;
+	
+	private static CoinSlot coinSlot;
+	
+	private static Coin insertedCoin;
+	
+	private static CoinDispenserBronze bronzeDispenser;
 
-
+	private static CoinDispenserGold goldDispenser;
+	
+	
+	
 
 	public static void main(String[] args) {
 
@@ -269,14 +281,29 @@ public class SelfCheckoutStationSoftware {
 			// no GUI yet to allow us to insert coin easily so use scanner to tell if coin is inserted 
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
+			
+
 
 			// This is to compare the value we put in to the total amount we get in session
 			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
 				if(denoms.contains(denom)) {
+					//insertedCoin = new Coin(denom);
+					// how to fix this?
+					
+					//coinSlot.receive(insertedCoin);
 					session.subAmountDue(denom.intValue());
-					if(session.getAmountDue() <= 0) {
+					if(session.getAmountDue() == 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
+						return;
+					}
+					else if(session.getAmountDue()<0){
+						System.out.println("Amount paid over, change return");
+						session.getOrderItem().clear();
+						// amount of change given back
+						double returnChange = -(session.getAmountDue());
+						System.out.print("Change returned: " + returnChange);
+						
 						return;
 					}
 					System.out.println("Amount due remaining : " + session.getAmountDue());
