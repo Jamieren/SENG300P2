@@ -271,6 +271,8 @@ public class SelfCheckoutStationSoftware {
 	
 	// potentially put this in a class of its own
 	public void payWithCoin() {
+		// this could be anything but we could set it to 1000
+		int coinCapacity = 1000;
 	
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
@@ -287,11 +289,14 @@ public class SelfCheckoutStationSoftware {
 			// This is to compare the value we put in to the total amount we get in session
 			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
 				if(denoms.contains(denom)) {
-					//insertedCoin = new Coin(denom);
-					// how to fix this?
-					
+					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+					insertedCoin = new Coin(denom);
+					coinSlot.activate();
+					//how to fix this?
 					//coinSlot.receive(insertedCoin);
+					//bronzeDispenser.receive(insertedCoin);
 					session.subAmountDue(denom.intValue());
+					
 					if(session.getAmountDue() == 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
@@ -300,23 +305,23 @@ public class SelfCheckoutStationSoftware {
 					else if(session.getAmountDue()<0){
 						System.out.println("Amount paid over, change return");
 						session.getOrderItem().clear();
-						// amount of change given back
+						// amount of change given back (should be negative?)
 						double returnChange = -(session.getAmountDue());
 						System.out.print("Change returned: " + returnChange);
-						
+						// how to fix this?
+						//bronzeDispenser.emit();
 						return;
 					}
-					System.out.println("Amount due remaining : " + session.getAmountDue());
 				} else {
 					System.out.println("Invalid Denomination amount, please try again");
 				}
 				System.out.println("Choose denomination of coin being inserted:");
+				// what do we need this for?
 				for(BigDecimal denom2 : denoms) {
 					System.out.println("\t" + denom2);
 				}
 				System.out.print("Denomination: ");
 				denom = scanner.nextBigDecimal();
-				
 				
 			}
 			// when we break out of the while loop, check for the negative value to find the 
@@ -338,9 +343,6 @@ public class SelfCheckoutStationSoftware {
 		
 		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
 	}
-	
-	
-	
 	
 	
 	// Getters For Testing Purposes
