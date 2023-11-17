@@ -77,15 +77,20 @@ public class PayCoin {
     
     public BigDecimal returnChange() throws NoCashAvailableException{
     	BigDecimal amountDue;
+    	BigDecimal changeDue;
     	if //changeInMachine < amountDue{
     		//throw new NoCashAvailableException;
     		//dispense what left?
-    		throw new NoCashAvailableException("insufficient change available in machine")
+    		throw new NoCashAvailableException("insufficient change available in machine");
     		
     	else
-    		while(coinTray.hasSpace()) {
-    			// return coins
+    		while(changeDue>0) {
+    			if //coinTray.hasSpace(){
+    				// dispense change
+    			
+    			throw new CashOverloadException("coin tray full. cannot continue dispensing change");
     		}
+    	
     	
     }
     
