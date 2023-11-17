@@ -17,6 +17,7 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
@@ -64,6 +65,11 @@ public class SelfCheckoutStationSoftware {
 	private static ReceiptPrinterBronze bronzePrinter;
 	
 	private static WeightDiscrepancy discrepancy;
+	
+	
+	private static Coin loonie, toonie, dime, nickel, quarter;
+	
+	
 
 
 
@@ -258,17 +264,20 @@ public class SelfCheckoutStationSoftware {
 		}
 	}
 	
-	
+	// potentially put this in a class of its own
 	public void payViaCoin() {
+	
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
-			System.out.println("Choose denomination of coin being inserted:");
+			System.out.print("Set denominations: ");
 			for(BigDecimal denom : denoms) {
 				System.out.println("\t" + denom);
 			}
+			// replace this with what is put in via CoinSlot 
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
 
+			// This is to compare the value we put in to the total amount we get in session
 			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
 				if(denoms.contains(denom)) {
 					session.subAmountDue(denom.intValue());
@@ -287,7 +296,12 @@ public class SelfCheckoutStationSoftware {
 				}
 				System.out.print("Denomination: ");
 				denom = scanner.nextBigDecimal();
+				
+				
 			}
+			// when we break out of the while loop, check for the negative value to find the 
+			// amount of change we need (prob just multiply by - to get it)
+			
 		} else {
 			System.out.println("No amount due");
 		}
