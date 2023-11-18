@@ -3,6 +3,7 @@ package com.thelocalmarketplace.software;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Scanner;
 
 import com.jjjwelectronics.Mass;
@@ -91,13 +92,20 @@ public class SelfCheckoutStationSoftware {
 		scanner = new Scanner(System.in);	
 		
 		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
-
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
+		SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
 		
 		database = TheLocalMarketPlaceDatabase.getInstance();
-
+		session = Session.getInstance();
 		session.promptEnterToContinue();
 
 		//Ready for more commands from customer
