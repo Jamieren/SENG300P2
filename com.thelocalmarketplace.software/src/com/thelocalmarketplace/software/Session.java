@@ -37,12 +37,12 @@ public class Session {
 
     public void activate() {
 		if(isActive()==false) {
-			System.out.println("A session has already been started, the system cannot start a new session "
-							 + "while in an active session.");
-		} else {
-			isActive = true;
 			System.out.println("Successfully started a session.");
+		} else {
+			System.out.println("A session has already been started, the system cannot start a new session "
+					 + "while in an active session.");
 		}
+		this.isActive = true;
     }
 
     public void deactivate() {
@@ -59,9 +59,11 @@ public class Session {
     public void newOrderItem(BarcodedItem item) {
     	orderItems.add(item);
     }
+    
     public void removeOrderItem(BarcodedItem item) {
     	orderItems.remove(item);
     }
+    
     public BarcodedItem findItem(Barcode barcode) {
     	for(BarcodedItem item: orderItems) {
     		if(item.getBarcode() == barcode) {
@@ -100,6 +102,7 @@ public class Session {
 		System.out.println("Press \"ENTER\" to activate a session: ");
 		try {
 			System.in.read();
+			activate();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -137,35 +140,4 @@ public class Session {
 				 + "\t4. Exit\n"
 				 + "Choice: ");
     }
-    
-//	int choice = 0;
-//	if (session == null) {
-//		session.printMenu();
-//		choice = scanner.nextInt();
-//		while (choice != 1) {
-//			if (choice == 2) {
-//				System.out.println("Cannot add an item while session is not active.\n");
-//				session.printMenu();
-//				choice = scanner.nextInt();
-//			}
-//			else if (choice == 3) {
-//				System.out.println("Cannot pay while a session is not active.\n");
-//				session.printMenu();
-//				choice = scanner.nextInt();
-//			}
-//			else if (choice == 4) {
-//				System.out.println("Cannot quit session while a session is not active.\n");
-//				session.printMenu();
-//				choice = scanner.nextInt();
-//			}
-//			else {
-//				System.out.println("Not a valid entry, please select an option from the menu.\n");
-//				session.printMenu();
-//				choice = scanner.nextInt();
-//			}
-//		}
-//		session = Session.getInstance();
-//	}
-    
-    
 }

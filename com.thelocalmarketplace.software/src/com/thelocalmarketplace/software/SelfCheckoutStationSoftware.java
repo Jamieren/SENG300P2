@@ -18,6 +18,7 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.banknote.BanknoteValidator;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
@@ -66,8 +67,12 @@ public class SelfCheckoutStationSoftware {
 	
 	private static WeightDiscrepancy discrepancy;
 
+	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
+	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
+	private Currency currency = Currency.getInstance("CAD");
+//	private int banknoteStorageUnitCapacity = 10;
 
-
+	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
 
 	public static void main(String[] args) {
@@ -75,16 +80,13 @@ public class SelfCheckoutStationSoftware {
 		sessionSimulation = new SelfCheckoutStationSoftware();
 		
 		scanner = new Scanner(System.in);	
+			
+		SelfCheckoutStationBronze.resetConfigurationToDefaults();
+
 		
-		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
-		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
-		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
-		SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(10);
-		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
-		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
-		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
-		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
-		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+//		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+//		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+//		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
@@ -96,8 +98,12 @@ public class SelfCheckoutStationSoftware {
 		
 		database = new TheLocalMarketPlaceDatabase();
 		session = Session.getInstance();
+
 		discrepancy =  new WeightDiscrepancy();
-		session.promptEnterToContinue();
+		
+		if (session.isActive() == false) {
+			session.promptEnterToContinue();
+		}
 
 		//Ready for more commands from customer
 		
