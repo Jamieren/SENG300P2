@@ -97,7 +97,7 @@ public class Session {
 	public void promptEnterToContinue(){
 
 		System.out.println("Welcome!");
-		System.out.println("Press \"ENTER\" to continue");
+		System.out.println("Press \"ENTER\" to activate a session: ");
 		try {
 			System.in.read();
 		} catch (IOException e) {
@@ -129,12 +129,43 @@ public class Session {
     public void weightDiscrepancyMessage() {
 		System.out.print("\n============================\n"
 				 + "Weight Discrepancy has been detected\n"
-				 + "Product: " + weightDiscrepancy.getProduct().getDescription() + "caused discrepancy\n"
-				 + "\tHas weight " + weightDiscrepancy.getWeight() + ", was expecting " + getTotalExpectedWeight() + "\n\n"
+				 + "Product: " + weightDiscrepancy.getDiscrepancyProduct().getDescription() + "caused discrepancy\n"
+				 + "\tHas weight " + weightDiscrepancy.getDiscrepancyWeight() + ", was expecting " + getTotalExpectedWeight() + "\n\n"
 				 + "\t 1. Add/Remove item\n"
 				 + "\t 2. Do-Not-Bag Request\n"
 				 + "\t 3. Attendant Approval\n"
 				 + "\t4. Exit\n"
 				 + "Choice: ");
     }
+    
+//	int choice = 0;
+//	if (session == null) {
+//		session.printMenu();
+//		choice = scanner.nextInt();
+//		while (choice != 1) {
+//			if (choice == 2) {
+//				System.out.println("Cannot add an item while session is not active.\n");
+//				session.printMenu();
+//				choice = scanner.nextInt();
+//			}
+//			else if (choice == 3) {
+//				System.out.println("Cannot pay while a session is not active.\n");
+//				session.printMenu();
+//				choice = scanner.nextInt();
+//			}
+//			else if (choice == 4) {
+//				System.out.println("Cannot quit session while a session is not active.\n");
+//				session.printMenu();
+//				choice = scanner.nextInt();
+//			}
+//			else {
+//				System.out.println("Not a valid entry, please select an option from the menu.\n");
+//				session.printMenu();
+//				choice = scanner.nextInt();
+//			}
+//		}
+//		session = Session.getInstance();
+//	}
+    
+    
 }

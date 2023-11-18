@@ -89,8 +89,14 @@ public class SelfCheckoutStationSoftware {
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
 		
-		database = TheLocalMarketPlaceDatabase.getInstance();
+		bronzeBaggingArea = new ElectronicScaleBronze();
+		bronzeBaggingArea.plugIn(PowerGrid.instance());
+		bronzeBaggingArea.turnOn();
+
+		
+		database = new TheLocalMarketPlaceDatabase();
 		session = Session.getInstance();
+		discrepancy =  new WeightDiscrepancy();
 		session.promptEnterToContinue();
 
 		//Ready for more commands from customer
@@ -100,30 +106,24 @@ public class SelfCheckoutStationSoftware {
 
 		boolean receieptPrinted = false;
 		while(receieptPrinted == false) {
-			if(session != null && discrepancy.hasWeightDiscrepancy()) {
+			if(session != null && discrepancy.getDiscrepancy()) {
 				session.weightDiscrepancyMessage();
 				int weightChoice = scanner.nextInt();
 				while (weightChoice != 4) {
 					if (weightChoice == 1) {
 						System.out.println("Item has been added/removed from bagging area.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else if (weightChoice == 2) {
 						System.out.println("No-Bag-Request has been activated.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else if (weightChoice == 3) {
 						System.out.println("Attendant has approved weight discrepancy.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else {
 						System.out.print("\n============================\n"
@@ -164,7 +164,7 @@ public class SelfCheckoutStationSoftware {
 				receieptPrinted = true;
 				System.exit(0);
 			}
-			if(!discrepancy.hasWeightDiscrepancy()) {
+			if(discrepancy.getDiscrepancy() == false) {
 				session.printMenu();
 				choice = scanner.nextInt();
 			}
@@ -227,7 +227,7 @@ public class SelfCheckoutStationSoftware {
 					int diff = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 					if(diff != 0) {
 						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-						discrepancy.setWeightDiscrepancy(true);
+						discrepancy.setDiscrepancy(true);
 									//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 						System.out.println("Weight discrepancy detected");
 					}
@@ -251,7 +251,7 @@ public class SelfCheckoutStationSoftware {
 						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 						if(diff != 0) {
 							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-							discrepancy.setWeightDiscrepancy(true);
+							discrepancy.setDiscrepancy(true);
 							System.out.println("Weight discrepancy detected");
 						}
 					} catch (OverloadedDevice e) {
@@ -324,9 +324,9 @@ public class SelfCheckoutStationSoftware {
 		this.selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		this.selfCheckoutStationBronze.turnOn();
 	}
-	public void initDatabase() {
-		this.database = TheLocalMarketPlaceDatabase.getInstance();
-	}
+//	public void initDatabase() {
+//		this.database = TheLocalMarketPlaceDatabase.getInstance();
+//	}
 	public void initSession() {
 		this.session = Session.getInstance();
 	}

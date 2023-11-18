@@ -13,32 +13,31 @@ public class WeightDiscrepancy {
 	private BigDecimal weight;
 	private boolean discrepancy;
 	
-	public WeightDiscrepancy (BarcodedProduct product, BigDecimal weight) {
+	public WeightDiscrepancy () {
+		discrepancy = false;
+	}
+	
+	public void setBarcodedProduct(BarcodedProduct product) {
 		this.product = product;
+	}
+	
+	public void setWeight(BigDecimal weight) {
 		this.weight = weight;
 	}
 	
-	public BarcodedProduct getProduct() {
+    public void setDiscrepancy(Boolean discrepancy) {
+    	this.discrepancy = discrepancy;
+    }
+	
+	public BarcodedProduct getDiscrepancyProduct() {
 		return product;
 	}
 
-	public BigDecimal getWeight() {
+	public BigDecimal getDiscrepancyWeight() {
 		return weight;
 	}
-	
-    public void setWeightDiscrepancy(Boolean discrepancy) {
-    	discrepancy = true;
-    }
     
-    public void setNoWeightDiscrepancy() {
-    	discrepancy = true;
-    }
-    
-    public boolean hasWeightDiscrepancy() {
-    	return discrepancy = false;
-    }
-    
-    public boolean getWeightDiscrepancy() {
+    public boolean getDiscrepancy() {
     	return discrepancy;
     }
 
