@@ -17,6 +17,9 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.CashOverloadException;
+import com.tdc.DisabledException;
+import com.tdc.NoCashAvailableException;
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
@@ -80,7 +83,7 @@ public class SelfCheckoutStationSoftware {
 	
 	
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws DisabledException, CashOverloadException {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
 		
@@ -270,32 +273,25 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	// potentially put this in a class of its own
-	public void payWithCoin() {
+	public void payWithCoin(Coin...coins) {
 		// this could be anything but we could set it to 1000
 		int coinCapacity = 1000;
 	
+		System.out.print("session get amount:" + session.getAmountDue());
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
 			System.out.print("Set denominations: ");
 			for(BigDecimal denom : denoms) {
 				System.out.println("\t" + denom);
-			}
-			// no GUI yet to allow us to insert coin easily so use scanner to tell if coin is inserted 
-			System.out.print("Denomination: ");
-			BigDecimal denom = scanner.nextBigDecimal();
-			
-
-
+			}	
+		
 			// This is to compare the value we put in to the total amount we get in session
-			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
-				if(denoms.contains(denom)) {
+			for(Coin coin: coins) {
+				if(denoms.contains(coin.getValue())) {
 					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
-					insertedCoin = new Coin(denom);
-					coinSlot.activate();
-					//how to fix this?
-					//coinSlot.receive(insertedCoin);
-					//bronzeDispenser.receive(insertedCoin);
-					session.subAmountDue(denom.intValue());
+					
+					session.subAmountDue(coin.getValue().doubleValue());
+					System.out.print("session get amount after coin insert:" + session.getAmountDue());
 					
 					if(session.getAmountDue() == 0) {
 						System.out.println("Fully paid amount");
@@ -309,7 +305,7 @@ public class SelfCheckoutStationSoftware {
 						double returnChange = -(session.getAmountDue());
 						System.out.print("Change returned: " + returnChange);
 						// how to fix this?
-						//bronzeDispenser.emit();
+//						bronzeDispenser.emit();
 						return;
 					}
 				} else {
@@ -320,12 +316,15 @@ public class SelfCheckoutStationSoftware {
 				for(BigDecimal denom2 : denoms) {
 					System.out.println("\t" + denom2);
 				}
-				System.out.print("Denomination: ");
-				denom = scanner.nextBigDecimal();
+			
 				
 			}
 			// when we break out of the while loop, check for the negative value to find the 
 			// amount of change we need (prob just multiply by - to get it)
+			
+			
+		//	while(session.getAmountDue() > 0) {
+				
 			
 		} else {
 			System.out.println("No amount due");
