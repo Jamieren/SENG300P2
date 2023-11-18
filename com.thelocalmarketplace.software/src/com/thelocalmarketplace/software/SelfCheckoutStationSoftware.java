@@ -17,6 +17,9 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.CashOverloadException;
+import com.tdc.DisabledException;
+import com.tdc.NoCashAvailableException;
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
@@ -274,7 +277,7 @@ public class SelfCheckoutStationSoftware {
 		// this could be anything but we could set it to 1000
 		// A.W: i think coin capacity should depend on the unit. there is something in the hardware that has to do with the capacity 
 			// shouldn't we have an instance of the unit and the capacity can be set for each individual machine
-		int coinCapacity = 1000;
+		
 	
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
@@ -291,7 +294,7 @@ public class SelfCheckoutStationSoftware {
 			// This is to compare the value we put in to the total amount we get in session
 			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
 				if(denoms.contains(denom)) {
-					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+					//bronzeDispenser = new CoinDispenserBronze(coinCapacity);
 					insertedCoin = new Coin(denom);
 					coinSlot.activate();
 					//how to fix this?
@@ -306,7 +309,9 @@ public class SelfCheckoutStationSoftware {
 					}
 					else if(session.getAmountDue()<0){
 						System.out.println("Amount paid over, change return");
+						returnChange();
 						session.getOrderItem().clear();
+						
 						// amount of change given back (should be negative?)
 						// A.W: i think it should be positive not negative
 						double returnChange = -(session.getAmountDue());
@@ -336,7 +341,18 @@ public class SelfCheckoutStationSoftware {
 		}
 	}
 	
-	public void returnChange() {
+	public void returnChange() throws CashOverloadException, NoCashAvailableException, DisabledException {
+		int coinCapacity = 1000;
+		
+		
+		double returnDue = session.getAmountDue();
+		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+		
+		while (returnDue != 0) {
+			bronzeDispenser.emit();
+
+		}
+		
 		
 	}
 	
