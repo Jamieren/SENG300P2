@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.jjjwelectronics.Mass;
@@ -98,17 +99,23 @@ public class SelfCheckoutStationSoftware {
 		
 		database = new TheLocalMarketPlaceDatabase();
 		session = Session.getInstance();
-
 		discrepancy =  new WeightDiscrepancy();
 		
-		if (session.isActive() == false) {
-			session.promptEnterToContinue();
+		int choice = 0;
+		
+		while (session.isActive() == false) {
+			try {
+				session.promptToStartSession();
+			} catch (InputMismatchException | IOException e) {
+				System.out.println("Invalid entry, error occured. Please try again.\n");
+//				e.printStackTrace();
+			}
 		}
 
 		//Ready for more commands from customer
 		
 		session.printMenu();
-		int choice = scanner.nextInt();
+		choice = scanner.nextInt();
 
 		boolean receieptPrinted = false;
 		while(receieptPrinted == false) {

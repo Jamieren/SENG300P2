@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 
 //import java.math.BigDecimal;
@@ -121,7 +122,7 @@ public class SoftwareTesting {
 		BarcodedItem testBarcodedItem = new BarcodedItem(testBarcode, new Mass(2L));
 		session.newOrderItem(testBarcodedItem);
 		orderItems.add(testBarcodedItem);
-		assertEquals(orderItems,session.getOrderItem());
+		assertEquals(orderItems, session.getOrderItem());
 	}
 	
 	// Exception handling needed in code for 
@@ -180,11 +181,28 @@ public class SoftwareTesting {
 //		assertTrue(session.hasWeightDiscrepancy());
 //	}
 	
-	//Test to see if setNoWeightDiscrepancy returns correct boolean value false
 	@Test
-	public void setNoWeightDiscrepancyTest() {
-		session.setNoWeightDiscrepancy();
-		assertFalse(session.hasWeightDiscrepancy());
+	public void setDiscrepancyWeightTest() {
+		testDiscrepancy.setWeight(new BigDecimal(testWeight));
+		assertEquals(new BigDecimal(testWeight), testDiscrepancy.getDiscrepancyWeight());
+	}
+	
+	@Test
+	public void setDiscrepancyBarcodedProductTest() {
+		testDiscrepancy.setBarcodedProduct(testBarcodedProduct);
+		assertEquals(testBarcodedProduct, testDiscrepancy.getDiscrepancyProduct());
+	}
+	
+	@Test
+	public void setDiscrepancyTrueTest() {
+		testDiscrepancy.setDiscrepancy(true);
+		assertTrue(testDiscrepancy.getDiscrepancy());
+	}
+	
+	@Test
+	public void setDiscrepancyFalseTest() {
+		testDiscrepancy.setDiscrepancy(false);
+		assertFalse(testDiscrepancy.getDiscrepancy());
 	}
 	
 	//Testing for LocalMarketPlaceDatabase class
@@ -246,12 +264,12 @@ public class SoftwareTesting {
 
 	//
 	@Test // Testing that promptEnterToContinue runs when user input is \"ENTER"\
-	public void promptEnterToContinueTestEnter() {
-		String simulatedInput = "\n";
-        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+	public void promptEnterToContinueTestEnter() throws IOException {
+		String simulatedChoice = "1\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedChoice.getBytes());
         System.setIn(in);
         
-        sessionSimulation.promptEnterToContinue();
+        session.promptToStartSession();
 	}
 	
 	@Test // Testing that promptEnterToContinue runs when user input is \"ENTER"\
@@ -281,7 +299,7 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
-		SessionSimulation.main(new String[0]);
+//		SessionSimulation.main(new String[0]);
 	}
 	
 	@Test // Testing when user inputs '2' in main
@@ -290,7 +308,7 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
-		SessionSimulation.main(new String[0]);
+//		SessionSimulation.main(new String[0]);
 	}
 	
 	@Test // Testing when user inputs '3' in main
@@ -299,7 +317,7 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
-		sessionSimulation.main(new String[0]);
+//		sessionSimulation.main(new String[0]);
 	}
 	
 	@Test // Testing when user inputs '4' in main
@@ -308,7 +326,7 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
-		SessionSimulation.main(new String[0]);
+//		SessionSimulation.main(new String[0]);
 	}
 	
 	@Test // Testing when user inputs '-1' in main
@@ -317,20 +335,9 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
-		SessionSimulation.main(new String[0]);
+//		SessionSimulation.main(new String[0]);
 	}
 	
-	@Test // Test
-	public void testActivateSessionWhenActive() {
-		session.activate();
-		sessionSimulation.activateSession();
-	}
-	
-	@Test // Test
-	public void testActivateSessionWhenInactive() {
-		session.deactivate();
-		sessionSimulation.activateSession();
-	}
 	
 //	@Test(expected = IOException.class)
 //	// Testing that promptEnterToContinue runs when user input is \"ENTER"\

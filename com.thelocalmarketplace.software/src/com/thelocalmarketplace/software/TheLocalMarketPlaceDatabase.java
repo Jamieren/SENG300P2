@@ -51,8 +51,6 @@ public class TheLocalMarketPlaceDatabase {
 		addBarcodedProductToInventory(canOfBeans, 75);
 	}
 
-	
-
 //	public static TheLocalMarketPlaceDatabase getInstance() {
 //		if (instance == null) {
 //			instance = new TheLocalMarketPlaceDatabase();
