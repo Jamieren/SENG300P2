@@ -117,8 +117,8 @@ public class SelfCheckoutStationSoftware {
 		session.printMenu();
 		choice = scanner.nextInt();
 
-		boolean receieptPrinted = false;
-		while(receieptPrinted == false) {
+		boolean receiptPrinted = false;
+		while(receiptPrinted == false) {
 			if(session != null && discrepancy.getDiscrepancy()) {
 				session.weightDiscrepancyMessage();
 				int weightChoice = scanner.nextInt();
@@ -174,7 +174,7 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 4) { //Exit
 				System.out.println("Exiting System");
-				receieptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
 			if(discrepancy.getDiscrepancy() == false) {
