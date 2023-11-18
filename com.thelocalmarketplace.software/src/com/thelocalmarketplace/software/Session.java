@@ -143,7 +143,8 @@ public class Session {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
-				+ "\t 4. Exit\n"
+				+ "\t 4. Pay via Debit\n"
+				+ "\t 5. Exit\n"
 				+ "Choice: ");
 	}
          

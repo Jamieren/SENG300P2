@@ -172,7 +172,11 @@ public class SelfCheckoutStationSoftware {
 				sessionSimulation.payViaCoin();
 //				break;
 			}
-			else if (choice == 4) { //Exit
+			else if (choice == 4) { //Pay Via Debit
+				sessionSimulation.payViaDebit();
+			}
+			
+			else if (choice == 5) { //Exit
 				System.out.println("Exiting System");
 				receiptPrinted = true;
 				System.exit(0);
@@ -312,6 +316,11 @@ public class SelfCheckoutStationSoftware {
 		} else {
 			System.out.println("No amount due");
 		}
+	}
+	
+	public void payViaDebit() {
+		PayDebitSwipe payment = new PayDebitSwipe();
+		payment.payByDebit();
 	}
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
