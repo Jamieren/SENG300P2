@@ -277,26 +277,21 @@ public class SelfCheckoutStationSoftware {
 		// this could be anything but we could set it to 1000
 		int coinCapacity = 1000;
 	
-		System.out.print("session get amount:" + session.getAmountDue());
+		System.out.print("session amount need to pay:" + session.getAmountDue() + "\n");
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
-			System.out.print("Set denominations: ");
-			for(BigDecimal denom : denoms) {
-				System.out.println("\t" + denom);
-			}	
-		
+					
 			// This is to compare the value we put in to the total amount we get in session
 			for(Coin coin: coins) {
 				if(denoms.contains(coin.getValue())) {
 					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
 					
 					session.subAmountDue(coin.getValue().doubleValue());
-					System.out.print("session get amount after coin insert:" + session.getAmountDue());
+					System.out.print("session get amount after coin insert:" + session.getAmountDue() + "\n");
 					
 					if(session.getAmountDue() == 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
-						return;
 					}
 					else if(session.getAmountDue()<0){
 						System.out.println("Amount paid over, change return");
@@ -308,24 +303,11 @@ public class SelfCheckoutStationSoftware {
 //						bronzeDispenser.emit();
 						return;
 					}
-				} else {
+				} 
+				else {
 					System.out.println("Invalid Denomination amount, please try again");
-				}
-				System.out.println("Choose denomination of coin being inserted:");
-				// what do we need this for?
-				for(BigDecimal denom2 : denoms) {
-					System.out.println("\t" + denom2);
-				}
-			
-				
+				}				
 			}
-			// when we break out of the while loop, check for the negative value to find the 
-			// amount of change we need (prob just multiply by - to get it)
-			
-			
-		//	while(session.getAmountDue() > 0) {
-				
-			
 		} else {
 			System.out.println("No amount due");
 		}

@@ -1,5 +1,6 @@
 package com.thelocalmarketplace.software.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,7 +49,7 @@ public class PayWithCoinTest {
 	TheLocalMarketPlaceDatabase softwareDatabase;
 	Session session;
 	
-//	Coin quarter, loonie, toonie, dime, nickel;
+	Coin quarter, loonie, toonie, dime, nickel;
 	
 	
 	@Before
@@ -72,21 +73,34 @@ public class PayWithCoinTest {
 		
 		session = new Session();
 		
-//		
-//		dime = new Coin(new BigDecimal("0.10"));
-//		nickel = new Coin(new BigDecimal("0.05"));
-//		loonie = new Coin(new BigDecimal("1"));
-//		toonie = new Coin(new BigDecimal("2"));
-	}
-
-	@Test
-	public void something() {
-		session.addAmountDue(28);
-//		System.out.print(session.getAmountDue());
-		Coin quarter = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.25"));
-		software.payWithCoin(quarter, quarter, quarter);
-		boolean alwaysTrue = true;
-		assertTrue(alwaysTrue);
+		nickel = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.05"));
+		dime = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.10"));
+		quarter = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.25"));
+		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
+		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
 		
 	}
+
+
+	@Test
+	public void exactCoinsInputed() {
+		session.addAmountDue(0.75);
+		software.payWithCoin(quarter, quarter, quarter);
+		double expected = 0.0;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+		
+	}
+	
+//	@Test
+//	public void moreThanAmountCoinsInputed() {
+//		session.addAmountDue(0.75);
+//		software.payWithCoin(quarter, dime, loonie);
+//		double expectedChange = 0.60;
+//		double actualChange = software.;
+//		double smallValue = 0.0001;
+//	    assertEquals(expected, actual, smallValue);
+//		
+//	}
 }
