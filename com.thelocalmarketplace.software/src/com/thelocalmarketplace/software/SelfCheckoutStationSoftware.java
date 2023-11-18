@@ -20,6 +20,7 @@ import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.NoCashAvailableException;
+import com.tdc.coin.AbstractCoinDispenser;
 import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
@@ -307,23 +308,10 @@ public class SelfCheckoutStationSoftware {
 						session.getOrderItem().clear();
 						return;
 					}
-					else if(session.getAmountDue()<0){
-						System.out.println("Amount paid over, change return");
-						returnChange();
-						session.getOrderItem().clear();
-						
-						// amount of change given back (should be negative?)
-						// A.W: i think it should be positive not negative
-						double returnChange = -(session.getAmountDue());
-						
-						System.out.print("Change returned: " + returnChange);
-						// how to fix this?
-						//bronzeDispenser.emit();
-						return;
-					}
 				} else {
 					System.out.println("Invalid Denomination amount, please try again");
 				}
+				
 				System.out.println("Choose denomination of coin being inserted:");
 				// what do we need this for?
 				for(BigDecimal denom2 : denoms) {
@@ -336,12 +324,27 @@ public class SelfCheckoutStationSoftware {
 			// when we break out of the while loop, check for the negative value to find the 
 			// amount of change we need (prob just multiply by - to get it)
 			
+			if(session.getAmountDue()<0){
+				System.out.println("Amount paid over, change return");
+				returnChange();
+				session.getOrderItem().clear();
+				
+				// amount of change given back (should be negative?)
+				// A.W: i think it should be positive not negative
+				double returnChange = -(session.getAmountDue());
+				
+				System.out.print("Change returned: " + returnChange);
+				// how to fix this?
+				//bronzeDispenser.emit();
+				return;
+			}
+			
 		} else {
 			System.out.println("No amount due");
 		}
 	}
 	
-	public void returnChange() throws CashOverloadException, NoCashAvailableException, DisabledException {
+	public void returnChange()  {
 		int coinCapacity = 1000;
 		
 		
@@ -349,10 +352,21 @@ public class SelfCheckoutStationSoftware {
 		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
 		
 		while (returnDue != 0) {
-			bronzeDispenser.emit();
-
-		}
-		
+				
+				try {
+					bronzeDispenser.emit();
+					//returnDue +=  ;
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoCashAvailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		
 	}
 	
