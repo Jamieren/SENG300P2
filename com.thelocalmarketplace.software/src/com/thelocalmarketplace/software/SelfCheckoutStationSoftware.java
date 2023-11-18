@@ -169,9 +169,11 @@ public class SelfCheckoutStationSoftware {
 	
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
-		// If customer tries to remove item before having any items.
+		// Barcode product should exist in database since they scanning into database.
 		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
-		if (session.getOrderItem() == null) {
+		
+		// If customer tries to remove item before having any items.
+		if (session.getOrderItem().isEmpty()) {
 			System.out.println("No order has been scanned! Can't remove something that is not there.");
 		}
 		//Items have been previously added
@@ -187,7 +189,7 @@ public class SelfCheckoutStationSoftware {
 				selfCheckoutStationBronze.baggingArea.removeAnItem(itemToRemove);
 				session.removeOrderItem(itemToRemove);
 				session.subtractTotalExpectedWeight(product.getExpectedWeight());
-				// Need to adjust discrepancy check, how does this code implement it?
+				
 			}
 		}		
 	}
@@ -212,7 +214,7 @@ public class SelfCheckoutStationSoftware {
 				System.out.println(product.getDescription() + " was added to bagging area");
 				
 				session.addTotalExpectedWeight(product.getExpectedWeight());
-				session.addAmountDue(BigDecimal.valueOf(product.getPrice()));
+				session.addAmountDue(product.getPrice());
 				Mass totalExpectedMass = new Mass(session.getTotalExpectedWeight());
 
 				try {
@@ -228,7 +230,27 @@ public class SelfCheckoutStationSoftware {
 				}
 				break;
 				case "NO":
-					System.out.println(product.getDescription() + " was not added to bagging area");
+					// Process bulky item
+					handleBulkyItem(product);
+					
+					// Process the item as if it was being added to bagging area. Weight reduction in handleBulkyItem should make this work without a wDiscrepancy
+					BarcodedItem exemptItem = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
+					session.newOrderItem(exemptItem);
+					// Reallocate expected weight as if item was added.
+					session.addTotalExpectedWeight(product.getExpectedWeight());
+					
+					// Check for discrepancy.
+					Mass expectedMass = new Mass(session.getTotalExpectedWeight());
+					try {
+						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						if(diff != 0) {
+							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							discrepancy.setWeightDiscrepancy(true);
+							System.out.println("Weight discrepancy detected");
+						}
+					} catch (OverloadedDevice e) {
+						// do nothing or else
+					}
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
@@ -322,5 +344,45 @@ public class SelfCheckoutStationSoftware {
 	        System.out.println("No amount due");
 	    }
 	}
-
+	
+	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
+		Double productWeight = toBeExempted.getExpectedWeight();
+		
+		// 3. [SIMULATE] Signals to the Attendant that a no-bagging request is in progress.
+		// 4. Signals to the System that the request is approved.
+		System.out.println("Bagging exemption approved.");
+		// 5. Reduces the expected weight in the bagging area by the expected weight of the item
+		session.addTotalExpectedWeight(-productWeight);
+		
+		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
+	}
+	
+	
+	
+	
+	
+	// Getters For Testing Purposes
+	public void initSelfStationBronze() {
+		
+		this.selfCheckoutStationBronze = new SelfCheckoutStationBronze();
+		this.selfCheckoutStationBronze.plugIn(PowerGrid.instance());
+		this.selfCheckoutStationBronze.turnOn();
+	}
+	public void initDatabase() {
+		this.database = TheLocalMarketPlaceDatabase.getInstance();
+	}
+	public void initSession() {
+		this.session = Session.getInstance();
+	}
+	public SelfCheckoutStationBronze getSelfStationBronze() {
+		return this.selfCheckoutStationBronze;
+	}
+	public TheLocalMarketPlaceDatabase getDatabase() {
+		return this.database;
+	}
+	public Session getSession() {
+		return this.session;
+	}
+	
+	
 }

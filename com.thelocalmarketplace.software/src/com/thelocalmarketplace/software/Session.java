@@ -17,7 +17,7 @@ public class Session {
 	private static BigDecimal amountDue;
 	private static WeightDiscrepancy weightDiscrepancy;
 	
-	private Session() {
+	public Session() {
 		//Instantiate data
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;
