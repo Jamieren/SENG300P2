@@ -71,7 +71,10 @@ public class SelfCheckoutStationSoftware {
 	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
 	private Currency currency = Currency.getInstance("CAD");
-	private int banknoteStorageUnitCapacity = 10;
+
+
+//	private int banknoteStorageUnitCapacity = 10;
+
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
@@ -85,9 +88,11 @@ public class SelfCheckoutStationSoftware {
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
 		
-		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
-		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
-		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+
+//		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+//		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+//		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+
 		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
@@ -108,7 +113,9 @@ public class SelfCheckoutStationSoftware {
 				session.promptToStartSession();
 			} catch (InputMismatchException | IOException e) {
 				System.out.println("Invalid entry, error occured. Please try again.\n");
-				e.printStackTrace();
+
+//				e.printStackTrace();
+
 			}
 		}
 
@@ -170,6 +177,7 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payViaCoin();
+
 				break;
 			}
 			else if (choice == 4) { //Pay Via Coin
@@ -177,6 +185,7 @@ public class SelfCheckoutStationSoftware {
 				break;
 			}
 			else if (choice == 5) { //Exit
+
 				System.out.println("Exiting System");
 				receieptPrinted = true;
 				System.exit(0);
@@ -358,4 +367,9 @@ public class SelfCheckoutStationSoftware {
 	public Session getSession() {
 		return this.session;
 	}
+
+	public void setDataBase(TheLocalMarketPlaceDatabase database) {
+		this.database = database;
+	}
+
 }
