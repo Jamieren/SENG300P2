@@ -319,27 +319,25 @@ public class SelfCheckoutStationSoftware {
 	
 	public void returnChange()  {
 		int coinCapacity = 1000;
+		BigDecimal testValue = new BigDecimal("0.25");
+		Coin testCoin = new Coin(testValue);
 		double changeDue = -(session.getAmountDue());
 		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+
 		goldDispenser = new CoinDispenserGold(coinCapacity);
 		coinTray = new CoinTray(15);
 		
 		while (changeDue != 0) {
-				//if (coinTray.hasSpace()) {
 					
 			try {
 				bronzeDispenser.emit(); 
-				//update change due somehow
+					//update change due somehow
 				//changeDue -= coinvalue removed
 			} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-		//}
-				//else {
-				//	System.out.println("No space in coin tray please remove coins");
-				//}
+		
 		}
 		
 		
