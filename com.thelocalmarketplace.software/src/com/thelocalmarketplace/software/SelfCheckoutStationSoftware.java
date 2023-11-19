@@ -24,6 +24,7 @@ import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
 import com.tdc.coin.CoinSlot;
+import com.thelocalmarketplace.hardware.CoinTray;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
@@ -73,6 +74,8 @@ public class SelfCheckoutStationSoftware {
 	private static WeightDiscrepancy discrepancy;
 	
 	private static CoinSlot coinSlot;
+	
+	private static CoinTray coinTray;
 	
 	private static Coin insertedCoin;
 	
@@ -319,19 +322,24 @@ public class SelfCheckoutStationSoftware {
 		double changeDue = -(session.getAmountDue());
 		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
 		goldDispenser = new CoinDispenserGold(coinCapacity);
+		coinTray = new CoinTray(15);
 		
 		while (changeDue != 0) {
-				
+				//if (coinTray.hasSpace()) {
+					
 			try {
-				bronzeDispenser.emit();
+				bronzeDispenser.emit(); 
 				//update change due somehow
+				//changeDue -= coinvalue removed
 			} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			
-			//goldDispenser.emit();
+		//}
+				//else {
+				//	System.out.println("No space in coin tray please remove coins");
+				//}
 		}
 		
 		
