@@ -3,8 +3,8 @@ package com.thelocalmarketplace.software;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Currency;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.jjjwelectronics.Mass;
@@ -19,6 +19,7 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.banknote.BanknoteValidator;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
@@ -67,8 +68,12 @@ public class SelfCheckoutStationSoftware {
 	
 	private static WeightDiscrepancy discrepancy;
 
+	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
+	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
+	private Currency currency = Currency.getInstance("CAD");
+	private int banknoteStorageUnitCapacity = 10;
 
-
+	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
 
 	public static void main(String[] args) {
@@ -76,48 +81,62 @@ public class SelfCheckoutStationSoftware {
 		sessionSimulation = new SelfCheckoutStationSoftware();
 		
 		scanner = new Scanner(System.in);	
-		
-		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+			
+		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
+		
+		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
 		
-		database = TheLocalMarketPlaceDatabase.getInstance();
+		bronzeBaggingArea = new ElectronicScaleBronze();
+		bronzeBaggingArea.plugIn(PowerGrid.instance());
+		bronzeBaggingArea.turnOn();
 
-		session.promptEnterToContinue();
+		
+		database = new TheLocalMarketPlaceDatabase();
+		session = Session.getInstance();
+		discrepancy =  new WeightDiscrepancy();
+		
+		int choice = 0;
+		
+		while (session.isActive() == false) {
+			try {
+				session.promptToStartSession();
+			} catch (InputMismatchException | IOException e) {
+				System.out.println("Invalid entry, error occured. Please try again.\n");
+				e.printStackTrace();
+			}
+		}
 
 		//Ready for more commands from customer
 		
 		session.printMenu();
-		int choice = scanner.nextInt();
+		choice = scanner.nextInt();
 
 		boolean receieptPrinted = false;
 		while(receieptPrinted == false) {
-			if(session != null && discrepancy.hasWeightDiscrepancy()) {
+			if(session != null && discrepancy.getDiscrepancy()) {
 				session.weightDiscrepancyMessage();
 				int weightChoice = scanner.nextInt();
 				while (weightChoice != 4) {
 					if (weightChoice == 1) {
 						System.out.println("Item has been added/removed from bagging area.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else if (weightChoice == 2) {
 						System.out.println("No-Bag-Request has been activated.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else if (weightChoice == 3) {
 						System.out.println("Attendant has approved weight discrepancy.");
-						discrepancy.setNoWeightDiscrepancy();
-						if (discrepancy.hasWeightDiscrepancy()==false) {
-							weightChoice = 4;
-						}
+						discrepancy.setDiscrepancy(false);
+						weightChoice = 4;
 					}
 					else {
 						System.out.print("\n============================\n"
@@ -151,14 +170,18 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payViaCoin();
-//				break;
+				break;
 			}
-			else if (choice == 4) { //Exit
+			else if (choice == 4) { //Pay Via Coin
+				PayViaBanknote.payViaBanknote();
+				break;
+			}
+			else if (choice == 5) { //Exit
 				System.out.println("Exiting System");
 				receieptPrinted = true;
 				System.exit(0);
 			}
-			if(!discrepancy.hasWeightDiscrepancy()) {
+			if(discrepancy.getDiscrepancy() == false) {
 				session.printMenu();
 				choice = scanner.nextInt();
 			}
@@ -167,6 +190,8 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	
+
+
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
 		// Barcode product should exist in database since they scanning into database.
@@ -221,7 +246,7 @@ public class SelfCheckoutStationSoftware {
 					int diff = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 					if(diff != 0) {
 						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-						discrepancy.setWeightDiscrepancy(true);
+						discrepancy.setDiscrepancy(true);
 									//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 						System.out.println("Weight discrepancy detected");
 					}
@@ -245,7 +270,7 @@ public class SelfCheckoutStationSoftware {
 						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 						if(diff != 0) {
 							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-							discrepancy.setWeightDiscrepancy(true);
+							discrepancy.setDiscrepancy(true);
 							System.out.println("Weight discrepancy detected");
 						}
 					} catch (OverloadedDevice e) {
@@ -262,7 +287,7 @@ public class SelfCheckoutStationSoftware {
 	
 	
 	public void payViaCoin() {
-		if(session.getAmountDue().compareTo(BigDecimal.ZERO) != 0) {
+		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
 			System.out.println("Choose denomination of coin being inserted:");
 			for(BigDecimal denom : denoms) {
@@ -271,10 +296,10 @@ public class SelfCheckoutStationSoftware {
 			System.out.print("Denomination: ");
 			BigDecimal denom = scanner.nextBigDecimal();
 
-			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue().compareTo(BigDecimal.ZERO) > 0) {
+			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
 				if(denoms.contains(denom)) {
-					session.subAmountDue(BigDecimal.valueOf(denom.intValue()));
-					if(session.getAmountDue().compareTo(BigDecimal.ZERO) < 0) {
+					session.subAmountDue(denom.intValue());
+					if(session.getAmountDue() <= 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
 						return;
@@ -293,56 +318,6 @@ public class SelfCheckoutStationSoftware {
 		} else {
 			System.out.println("No amount due");
 		}
-	}
-	
-	
-	
-	
-	public void payViaBanknote() {
-	    if (session.getAmountDue().compareTo(BigDecimal.ZERO) != 0) {
-	    	List<BigDecimal> denoms = new ArrayList<>(Arrays.asList(selfCheckoutStationBronze.banknoteDenominations));
-	        System.out.println("Choose denomination of banknote being inserted:");
-	        for (BigDecimal denom : denoms) {
-	            System.out.println("\t" + denom);
-	        }
-	        System.out.print("Denomination: ");
-	        BigDecimal denom = scanner.nextBigDecimal();
-	        BigDecimal totalPaid = BigDecimal.ZERO;
-
-	        while (denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue().compareTo(BigDecimal.ZERO) > 0) {
-	            if (denoms.contains(denom)) {
-	            	session.subAmountDue(BigDecimal.valueOf(denom.intValue()));
-	                totalPaid = totalPaid.add(denom);
-
-	                if (session.getAmountDue().compareTo(BigDecimal.ZERO) <= 0) {
-	                    if (session.getAmountDue().compareTo(BigDecimal.ZERO) < 0) {
-	                        BigDecimal change = session.getAmountDue().negate();
-	                        System.out.println("Fully paid amount, change: " + change);
-	                    } else {
-	                        System.out.println("Fully paid amount");
-	                    }
-	                    session.getOrderItem().clear();
-	                    return;
-	                }
-	                System.out.println("Amount due:" + session.getAmountDue());
-	            } else {
-	                System.out.println("Invalid denomination amount, please try again");
-	            }
-	            System.out.println("Choose denomination of banknote being inserted:");
-	            for (BigDecimal denom2 : denoms) {
-	                System.out.println("\t" + denom2);
-	            }
-	            System.out.print("Denomination: ");
-	            denom = scanner.nextBigDecimal();
-	        }
-
-	        if (totalPaid.compareTo(session.getAmountDue()) > 0) {
-	            BigDecimal change = totalPaid.subtract(session.getAmountDue());
-	            System.out.println("Change to return: " + change);
-	        }
-	    } else {
-	        System.out.println("No amount due");
-	    }
 	}
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
@@ -368,9 +343,9 @@ public class SelfCheckoutStationSoftware {
 		this.selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		this.selfCheckoutStationBronze.turnOn();
 	}
-	public void initDatabase() {
-		this.database = TheLocalMarketPlaceDatabase.getInstance();
-	}
+//	public void initDatabase() {
+//		this.database = TheLocalMarketPlaceDatabase.getInstance();
+//	}
 	public void initSession() {
 		this.session = Session.getInstance();
 	}
@@ -383,6 +358,4 @@ public class SelfCheckoutStationSoftware {
 	public Session getSession() {
 		return this.session;
 	}
-	
-	
 }

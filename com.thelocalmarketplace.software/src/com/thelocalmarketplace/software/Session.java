@@ -3,7 +3,8 @@ package com.thelocalmarketplace.software;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
@@ -14,14 +15,14 @@ public class Session {
 	private boolean isActive = false;
 	private static ArrayList<BarcodedItem> orderItems;
 	private static double totalExpectedWeight;
-	private static BigDecimal amountDue;
+	private static double amountDue;
 	private static WeightDiscrepancy weightDiscrepancy;
 	
-	public Session() {
+	private Session() {
 		//Instantiate data
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;
-		amountDue = new BigDecimal("0");
+		amountDue = 0;
 		weightDiscrepancy = null;
 	}
 	
@@ -38,12 +39,12 @@ public class Session {
 
     public void activate() {
 		if(isActive()==false) {
-			System.out.println("A session has already been started, the system cannot start a new session "
-							 + "while in an active session.");
-		} else {
-			isActive = true;
 			System.out.println("Successfully started a session.");
+		} else {
+			System.out.println("\nA session has already been started, the system cannot start a new session "
+					 + "while in an active session.");
 		}
+		this.isActive = true;
     }
 
     public void deactivate() {
@@ -60,9 +61,11 @@ public class Session {
     public void newOrderItem(BarcodedItem item) {
     	orderItems.add(item);
     }
+    
     public void removeOrderItem(BarcodedItem item) {
     	orderItems.remove(item);
     }
+    
     public BarcodedItem findItem(Barcode barcode) {
     	for(BarcodedItem item: orderItems) {
     		if(item.getBarcode() == barcode) {
@@ -83,26 +86,45 @@ public class Session {
     	totalExpectedWeight -= weight;
     }
     
-    public BigDecimal getAmountDue() {
-    	return amountDue;
+    public double getAmountDue() {
+        return amountDue;
     }
-    
-    public void addAmountDue(BigDecimal amount) {
-    	amountDue = amountDue.add(amount);
-    }
-    
-    public void subAmountDue(BigDecimal amount) {
-    	amountDue = amountDue.subtract(amount);
-    }
-    
-	public void promptEnterToContinue(){
 
+    public void addAmountDue(double amount) {
+        amountDue += amount;
+    }
+
+    public void subAmountDue(double amount) {
+        amountDue -= amount;
+    }
+    
+	Scanner scanner = new Scanner(System.in);
+
+	public void promptToStartSession() throws IOException{
+		int choice;
+		scanner = new Scanner(System.in);
 		System.out.println("Welcome!");
-		System.out.println("Press \"ENTER\" to continue");
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
+		System.out.println("Enter \"1\" to activate a session: ");
+		choice = scanner.nextInt();
+		if (choice == 1) {
+			activate();
+		}
+		else {
+			System.out.println("\n" + choice + " is not a valid input. Please try again.\n\n");
+			System.out.println("Welcome!\n");
+			System.out.println("Enter \"1\" to activate a session: \n");
+			try {
+				choice = scanner.nextInt();
+				if (choice == 1) {
+					activate();
+				}
+				else {
+					System.out.println("\n" + choice + " is not a valid input. Please try again.\n\n");
+				}
+			} catch (InputMismatchException e) {
+				System.out.println("Invalid entry, error occured. Please try again.\n");
+//				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -123,15 +145,16 @@ public class Session {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
-				+ "\t 4. Exit\n"
+				+ "\t 4. Pay via Banknote\n"
+				+ "\t 5. Exit\n"
 				+ "Choice: ");
 	}
          
     public void weightDiscrepancyMessage() {
 		System.out.print("\n============================\n"
 				 + "Weight Discrepancy has been detected\n"
-				 + "Product: " + weightDiscrepancy.getProduct().getDescription() + "caused discrepancy\n"
-				 + "\tHas weight " + weightDiscrepancy.getWeight() + ", was expecting " + getTotalExpectedWeight() + "\n\n"
+				 + "Product: " + weightDiscrepancy.getDiscrepancyProduct().getDescription() + "caused discrepancy\n"
+				 + "\tHas weight " + weightDiscrepancy.getDiscrepancyWeight() + ", was expecting " + getTotalExpectedWeight() + "\n\n"
 				 + "\t 1. Add/Remove item\n"
 				 + "\t 2. Do-Not-Bag Request\n"
 				 + "\t 3. Attendant Approval\n"
