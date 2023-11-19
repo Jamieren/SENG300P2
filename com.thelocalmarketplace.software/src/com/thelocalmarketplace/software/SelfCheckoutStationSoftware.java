@@ -352,4 +352,7 @@ public class SelfCheckoutStationSoftware {
 	public Session getSession() {
 		return this.session;
 	}
+	public void setDataBase(TheLocalMarketPlaceDatabase database) {
+		this.database = database;
+	}
 }
