@@ -293,6 +293,7 @@ public class SelfCheckoutStationSoftware {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
 					}
+					
 					else if(session.getAmountDue()<0){
 						System.out.println("Amount paid over, change return");
 						session.getOrderItem().clear();
@@ -311,6 +312,29 @@ public class SelfCheckoutStationSoftware {
 		} else {
 			System.out.println("No amount due");
 		}
+	}
+	
+	public void returnChange()  {
+		int coinCapacity = 1000;
+		double changeDue = -(session.getAmountDue());
+		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+		goldDispenser = new CoinDispenserGold(coinCapacity);
+		
+		while (changeDue != 0) {
+				
+			try {
+				bronzeDispenser.emit();
+				//update change due somehow
+			} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			//goldDispenser.emit();
+		}
+		
+		
 	}
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
