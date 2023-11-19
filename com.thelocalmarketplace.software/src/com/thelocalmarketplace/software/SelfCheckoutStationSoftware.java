@@ -319,8 +319,16 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	public void payViaDebit() {
+		boolean paymentGood = false;
 		PayDebitSwipe payment = new PayDebitSwipe();
 		payment.payByDebit();
+		if(paymentGood) {
+			System.out.println("Payment successful! Amount Due: 0");
+			//session.printReceipt();
+		}else {
+			System.out.println("Payment was unsuccessful\n");
+			System.out.println("Please try again or choose a different payment method\n");
+		}
 	}
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 

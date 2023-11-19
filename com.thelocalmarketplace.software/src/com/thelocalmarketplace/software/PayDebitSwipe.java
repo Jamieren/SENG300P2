@@ -24,7 +24,7 @@ import com.thelocalmarketplace.hardware.external.CardIssuer;
  * 
  * Responsible for allowing customer to pay by debit via swipe
  */
-public class PayDebitSwipe {
+public class PayDebitSwipe implements CardReaderListener{
 	
 	private Card card;
 	private CardReaderListener cardReader;
@@ -34,12 +34,7 @@ public class PayDebitSwipe {
 	public boolean payByDebit() {
 		amountDue = Session.getInstance().getAmountDue();
 		System.out.println("Please swipe your card: ");
-		try {
-			Card.CardSwipeData data = card.swipe();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		cardSwipe(card);
 		String cardNumber = this.card.number;
 		long holdNumber = bank.authorizeHold(cardNumber, amountDue);
 		
@@ -51,12 +46,59 @@ public class PayDebitSwipe {
 		}
 		return false;
 	}
+	
+	private void cardSwipe(Card card) {
+		try {
+			Card.CardSwipeData data = card.swipe();
+			System.out.println("Card has been swiped");
 			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	private String signaturePrompt() {
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Please sign here: ");
 		return scanner.nextLine();
+	}
+
+	@Override
+	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void aCardHasBeenSwiped() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void theDataFromACardHasBeenRead(CardData data) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
