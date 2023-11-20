@@ -99,7 +99,7 @@ public class SelfCheckoutStationSoftware {
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
-
+	
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
@@ -210,7 +210,7 @@ public class SelfCheckoutStationSoftware {
 				System.exit(0);
 			}
 			
-			else if (choice == 6 { //Exit
+			else if (choice == 6) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
