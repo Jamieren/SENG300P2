@@ -71,7 +71,10 @@ public class SelfCheckoutStationSoftware {
 	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
 	private Currency currency = Currency.getInstance("CAD");
+
+
 //	private int banknoteStorageUnitCapacity = 10;
+
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
@@ -85,14 +88,17 @@ public class SelfCheckoutStationSoftware {
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
 		
+
 //		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
 //		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
 //		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+
 		selfCheckoutStationBronze = new SelfCheckoutStationBronze();
 		selfCheckoutStationBronze.plugIn(PowerGrid.instance());
 		selfCheckoutStationBronze.turnOn();
 		
 		bronzeBaggingArea = new ElectronicScaleBronze();
+		PowerGrid.engageUninterruptiblePowerSource();
 		bronzeBaggingArea.plugIn(PowerGrid.instance());
 		bronzeBaggingArea.turnOn();
 
@@ -108,7 +114,9 @@ public class SelfCheckoutStationSoftware {
 				session.promptToStartSession();
 			} catch (InputMismatchException | IOException e) {
 				System.out.println("Invalid entry, error occured. Please try again.\n");
+
 //				e.printStackTrace();
+
 			}
 		}
 
@@ -170,13 +178,22 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payViaCoin();
-//				break;
+        receiptPrinted = true;
+				System.exit(0);
 			}
-			else if (choice == 4) { //Pay Via Debit
+			else if (choice == 4) { //Pay Via Banknnote
+				PayViaBanknote.payViaBanknote();
+				receiptPrinted = true;
+				System.exit(0);
+			}
+			else if (choice == 5) { //Pay Via Debit
 				sessionSimulation.payViaDebit();
+        receiptPrinted = true;
+				System.exit(0);
 			}
 			
-			else if (choice == 5) { //Exit
+			else if (choice == 6 { //Exit
+
 				System.out.println("Exiting System");
 				receiptPrinted = true;
 				System.exit(0);
@@ -190,6 +207,8 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	
+
+
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
 		// Barcode product should exist in database since they scanning into database.
@@ -238,12 +257,15 @@ public class SelfCheckoutStationSoftware {
 				
 				session.addTotalExpectedWeight(product.getExpectedWeight());
 				session.addAmountDue(product.getPrice());
+				bronzeBaggingArea.addAnItem(item);
 				Mass totalExpectedMass = new Mass(session.getTotalExpectedWeight());
 
 				try {
+					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
 					int diff = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+					System.out.println(diff);
 					if(diff != 0) {
-						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 						discrepancy.setDiscrepancy(true);
 									//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 						System.out.println("Weight discrepancy detected");
@@ -337,8 +359,13 @@ public class SelfCheckoutStationSoftware {
 		// 3. [SIMULATE] Signals to the Attendant that a no-bagging request is in progress.
 		// 4. Signals to the System that the request is approved.
 		System.out.println("Bagging exemption approved.");
+		
 		// 5. Reduces the expected weight in the bagging area by the expected weight of the item
-		session.addTotalExpectedWeight(-productWeight);
+		if ((session.getTotalExpectedWeight() - productWeight) >= 0) { // if the difference >= 0, remove the weight
+			session.addTotalExpectedWeight(-productWeight); 
+		} else { // set to 0 if difference < 0.
+			session.addTotalExpectedWeight(-session.getTotalExpectedWeight());
+		}
 		
 		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
 	}
@@ -369,4 +396,9 @@ public class SelfCheckoutStationSoftware {
 	public Session getSession() {
 		return this.session;
 	}
+
+	public void setDataBase(TheLocalMarketPlaceDatabase database) {
+		this.database = database;
+	}
+
 }
