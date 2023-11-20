@@ -85,21 +85,18 @@ public class SelfCheckoutStationSoftware {
 
 	private static CoinDispenserGold goldDispenser;
 	
+	private final static String YES = "YES";
 	
-	
+	private final static String NO = "NO";
 
-	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
+	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5"), new BigDecimal("10"), new BigDecimal("20")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
 	private Currency currency = Currency.getInstance("CAD");
 
-	
-
 //	private int banknoteStorageUnitCapacity = 10;
-
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
-	
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
@@ -109,8 +106,6 @@ public class SelfCheckoutStationSoftware {
 		SelfCheckoutStationSoftware.handheldScanner = new HandheldBarcodeScanner(scanner); // Pass the existing scanner object
 			
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
-
-		
 
 //		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
 //		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
@@ -137,12 +132,40 @@ public class SelfCheckoutStationSoftware {
 				session.promptToStartSession();
 			} catch (InputMismatchException | IOException e) {
 				System.out.println("Invalid entry, error occured. Please try again.\n");
-
-//				e.printStackTrace();
-
 			}
 		}
 
+		
+		//Check if the customer has their own bags
+		System.out.println("Would you like to use your own bags? Enter Yes or No: \n");
+		
+		boolean waitingForValidInput = true;
+		String addBagChoice = null;
+		
+		while (waitingForValidInput) {
+			try {
+				addBagChoice = scanner.nextLine().toUpperCase();
+				waitingForValidInput = false;
+			}
+			catch (InputMismatchException e) {
+				System.out.println("Invalid entry, error occured. Please try again or enter No to cancel.\n");
+			}
+			
+		while (addBagChoice.equals(YES)) {
+			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");
+			try {
+				addBagChoice = scanner.nextLine().toUpperCase();
+				waitingForValidInput = false;
+			}
+			catch (InputMismatchException e) {
+				System.out.println("Invalid entry, error occured. Please try again.\n");
+			}
+			if (addBagChoice.equals(YES)) {
+
+		}
+		}
+		
+		
 		//Ready for more commands from customer
 		
 		session.printMenu();
@@ -222,6 +245,7 @@ public class SelfCheckoutStationSoftware {
 			}
 		}
 		scanner.close();
+		}
 	}
 	
 
@@ -285,7 +309,7 @@ public class SelfCheckoutStationSoftware {
 			
 			String choice = scanner.nextLine().toUpperCase();
 			switch(choice) {
-			case "YES":
+			case YES:
 				//4. Updates the expected weight from the bagging area.
 				BarcodedItem item = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 				selfCheckoutStationBronze.baggingArea.addAnItem(item);
@@ -311,7 +335,7 @@ public class SelfCheckoutStationSoftware {
 					
 				}
 				break;
-				case "NO":
+				case NO:
 					session.addTotalExpectedWeight(product.getExpectedWeight());
 					// Process bulky item
 					handleBulkyItem(product);
