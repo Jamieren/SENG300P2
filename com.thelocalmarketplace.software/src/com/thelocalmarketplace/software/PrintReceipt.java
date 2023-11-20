@@ -6,15 +6,9 @@ import com.jjjwelectronics.printer.ReceiptPrinterBronze;
 import com.jjjwelectronics.printer.ReceiptPrinterListener;
 
 public class PrintReceipt implements ReceiptPrinterListener {
-	
-	    private double amountDue;
-		private ReceiptPrinterBronze receiptPrinter;	    
-	     
-	    public void setAmountDue(Session session) {
-	    	amountDue = session.getAmountDue();
-	    }
+	private ReceiptPrinterBronze receiptPrinter;	   
 
-	    public void print() {
+	    public void print(String paymentRecord, double amountDue) {
 	        try {
 	            // Print the payment record
 	            for (char c : paymentRecord.toCharArray()) {
