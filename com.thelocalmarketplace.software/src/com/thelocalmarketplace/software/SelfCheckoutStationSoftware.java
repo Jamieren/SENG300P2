@@ -19,6 +19,13 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
+import com.tdc.CashOverloadException;
+import com.tdc.DisabledException;
+import com.tdc.NoCashAvailableException;
+import com.tdc.coin.Coin;
+import com.tdc.coin.CoinDispenserBronze;
+import com.tdc.coin.CoinDispenserGold;
+import com.tdc.coin.CoinSlot;
 import com.tdc.banknote.BanknoteValidator;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
@@ -68,8 +75,18 @@ public class SelfCheckoutStationSoftware {
 	
 	private static WeightDiscrepancy discrepancy;
 	
+	private static CoinSlot coinSlot;
+	
+	private static Coin insertedCoin;
+	
+	private static CoinDispenserBronze bronzeDispenser;
+	
 	private static HandheldBarcodeScanner handheldScanner;
 
+	private static CoinDispenserGold goldDispenser;
+	
+	
+	
 
 	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
@@ -174,8 +191,12 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
-				sessionSimulation.payViaCoin();
-        receiptPrinted = true;
+				sessionSimulation.payWithCoin();
+//				break;
+			}
+			else if (choice == 4) { //Exit
+				System.out.println("Exiting System");
+				receieptPrinted = true;
 				System.exit(0);
 			}
 			else if (choice == 4) { //Pay Via Banknnote
@@ -322,35 +343,39 @@ public class SelfCheckoutStationSoftware {
 		}
 	}
 	
+	// potentially put this in a class of its own
+	public void payWithCoin(Coin...coins) {
+		// this could be anything but we could set it to 1000
+		int coinCapacity = 1000;
 	
-	public void payViaCoin() {
+		System.out.print("session amount need to pay:" + session.getAmountDue() + "\n");
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
-			System.out.println("Choose denomination of coin being inserted:");
-			for(BigDecimal denom : denoms) {
-				System.out.println("\t" + denom);
-			}
-			System.out.print("Denomination: ");
-			BigDecimal denom = scanner.nextBigDecimal();
-
-			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
-				if(denoms.contains(denom)) {
-					session.subAmountDue(denom.intValue());
-					if(session.getAmountDue() <= 0) {
+					
+			// This is to compare the value we put in to the total amount we get in session
+			for(Coin coin: coins) {
+				if(denoms.contains(coin.getValue())) {
+					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+					
+					session.subAmountDue(coin.getValue().doubleValue());
+					System.out.print("session get amount after coin insert:" + session.getAmountDue() + "\n");
+					
+					if(session.getAmountDue() == 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
+					}
+					else if(session.getAmountDue()<0){
+						System.out.println("Amount paid over, change return");
+						session.getOrderItem().clear();
+			
+						double returnChange = -(session.getAmountDue());
+						System.out.print("Change returned: " + returnChange);
 						return;
 					}
-					System.out.println("Amount due remaining : " + session.getAmountDue());
-				} else {
+				} 
+				else {
 					System.out.println("Invalid Denomination amount, please try again");
-				}
-				System.out.println("Choose denomination of coin being inserted:");
-				for(BigDecimal denom2 : denoms) {
-					System.out.println("\t" + denom2);
-				}
-				System.out.print("Denomination: ");
-				denom = scanner.nextBigDecimal();
+				}				
 			}
 		} else {
 			System.out.println("No amount due");
@@ -386,9 +411,6 @@ public class SelfCheckoutStationSoftware {
 		
 		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
 	}
-	
-	
-	
 	
 	
 	// Getters For Testing Purposes

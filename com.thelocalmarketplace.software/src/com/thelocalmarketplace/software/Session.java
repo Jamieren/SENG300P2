@@ -20,7 +20,8 @@ public class Session {
 	private static double amountDue;
 	private static WeightDiscrepancy weightDiscrepancy;
 	
-	private Session() {
+	// had to make this public
+	public Session() {
 		//Instantiate data
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;

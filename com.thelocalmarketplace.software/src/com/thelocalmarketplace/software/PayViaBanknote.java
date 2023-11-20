@@ -1,5 +1,4 @@
 package com.thelocalmarketplace.software;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
