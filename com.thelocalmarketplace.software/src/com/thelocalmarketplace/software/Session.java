@@ -25,7 +25,7 @@ public class Session {
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;
 		amountDue = 0;
-		weightDiscrepancy = null;
+		weightDiscrepancy = new WeightDiscrepancy();
 	}
 	
 	public static Session getInstance() {
