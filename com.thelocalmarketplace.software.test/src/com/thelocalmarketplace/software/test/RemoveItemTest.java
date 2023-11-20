@@ -1,6 +1,5 @@
 package com.thelocalmarketplace.software.test;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -15,7 +14,6 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodedItem;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
-import com.thelocalmarketplace.hardware.external.ProductDatabases;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.Session;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
@@ -34,7 +32,7 @@ public class RemoveItemTest {
 	
 	
 	SelfCheckoutStationSoftware software;
-	TheLocalMarketPlaceDatabase softwareDatabase;
+	
 	Session session;
 	
 	
@@ -50,7 +48,7 @@ public class RemoveItemTest {
 		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
 		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		
-		software.initDatabase();
+		software.setDataBase(new TheLocalMarketPlaceDatabase());
 		software.initSelfStationBronze();
 		software.initSession();
 		

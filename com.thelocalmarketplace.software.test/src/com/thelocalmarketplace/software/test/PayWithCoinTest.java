@@ -1,6 +1,8 @@
 package com.thelocalmarketplace.software.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -9,103 +11,94 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.jjjwelectronics.Mass;
+import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.scanner.Barcode;
+import com.jjjwelectronics.scanner.BarcodedItem;
 import com.tdc.CashOverloadException;
 import com.tdc.DisabledException;
 import com.tdc.coin.Coin;
-import com.thelocalmarketplace.hardware.SelfCheckoutStation;
-import com.thelocalmarketplace.software.SelfCheckoutController;
-import com.thelocalmarketplace.software.SelfCheckoutSession;
+import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
+import com.thelocalmarketplace.software.Session;
+import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 
 import powerutility.PowerGrid;
 
 /**
  *
- * @author Robin Bowering UCID 30123373
- * @author Kelvin Jamila UCID 30117164
- * @author Nikki Kim UCID 30189188
- * @author Hillary Nguyen UCID 30161137
- * @author Matt Gibson UCID 30117091
  *
  * Test class for paying with coin
  *
  */
 public class PayWithCoinTest {
-	private SelfCheckoutController controller;
-	private SelfCheckoutStation hardware;
-	private SelfCheckoutSession currentSession;
+	Numeral[] testNumeralArray1 = {Numeral.one} ;
+	Barcode testBarcode1 = new Barcode(testNumeralArray1);
+	BarcodedItem testItem1 = new BarcodedItem(testBarcode1, Mass.ONE_GRAM);
+	BarcodedProduct testProduct1 = new BarcodedProduct(testBarcode1, "1 ml of Water", 1, 1);
 
-	private Coin loonie = new Coin(Currency.getInstance("CAD"), BigDecimal.ONE);
-
-
+	Numeral[] testNumeralArray2 = {Numeral.two} ;
+	Barcode testBarcode2 = new Barcode(testNumeralArray2);
+	BarcodedItem testItem2 = new BarcodedItem(testBarcode2, Mass.ONE_GRAM.sum(Mass.ONE_GRAM));
+	BarcodedProduct testProduct2 = new BarcodedProduct(testBarcode2, "1 ml of Milk", 2, 2);
+	
+	SelfCheckoutStationSoftware software;
+	TheLocalMarketPlaceDatabase softwareDatabase;
+	Session session;
+	
+	Coin quarter, loonie, toonie, dime, nickel;
+	
+	
 	@Before
 	public void setup() {
-        hardware = new SelfCheckoutStation();
-        hardware.plugIn(PowerGrid.instance());
-        hardware.turnOn();
-        controller = new SelfCheckoutController(hardware);
-        currentSession = controller.startSession();
-        currentSession.orderTotal = BigDecimal.valueOf(25);
-    }
+		software = new SelfCheckoutStationSoftware();
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
+		SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+		
+		software.initDatabase();
+		software.initSelfStationBronze();
+		software.initSession();
+		
+		software.getDatabase().addBarcodedProductToDatabase(testProduct1);
+		software.getDatabase().addBarcodedProductToDatabase(testProduct2);
+		
+		session = new Session();
+		
+		nickel = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.05"));
+		dime = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.10"));
+		quarter = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.25"));
+		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
+		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
+		
+	}
 
 
 	@Test
-	public void validPayWithCoinTest() {
-		currentSession.payWithCoin();
-		Assert.assertEquals(true, currentSession.payingForOrder);
+	public void exactCoinsInputed() {
+		session.addAmountDue(0.75);
+		software.payWithCoin(quarter, quarter, quarter);
+		double expected = 0.0;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+		
 	}
-
-	@Test
-	public void payWhileWeightDiscrepancy() {
-		currentSession.weightDiscrepancy = true;
-		currentSession.payWithCoin();
-
-		Assert.assertTrue(hardware.coinSlot.isDisabled());
-	}
-
-	@Test
-	public void amountPaidMoreTotal() {
-		currentSession.payWithCoin();
-		BigDecimal payment = new BigDecimal(30);
-		currentSession.processPayment(payment);
-
-		Assert.assertTrue(hardware.coinSlot.isDisabled());
-	}
-
-	@Test
-	public void amountPaidZero() {
-		currentSession.payWithCoin();
-		BigDecimal payment = new BigDecimal(0);
-		currentSession.processPayment(payment);
-
-		Assert.assertFalse(hardware.coinSlot.isDisabled());
-	}
-
-	@Test
-	public void amountPaidLessTotal() {
-		currentSession.payWithCoin();
-		BigDecimal payment = new BigDecimal(10);
-		currentSession.processPayment(payment);
-
-		Assert.assertFalse(hardware.coinSlot.isDisabled());
-	}
-
-	@Test
-	public void amountPaidEqualTotal() {
-		currentSession.payWithCoin();
-		BigDecimal payment = new BigDecimal(25);
-		currentSession.processPayment(payment);
-
-		Assert.assertTrue(hardware.coinSlot.isDisabled());
-	}
-
-	@Test
-	public void fullPaymentEndsSession() throws DisabledException, CashOverloadException {
-		currentSession.orderTotal = BigDecimal.ONE;
-
-		currentSession.payWithCoin();
-
-		hardware.coinSlot.receive(loonie);
-
-		assertFalse(controller.activeSession);
-	}
+	
+//	@Test
+//	public void moreThanAmountCoinsInputed() {
+//		session.addAmountDue(0.75);
+//		software.payWithCoin(quarter, dime, loonie);
+//		double expectedChange = 0.60;
+//		double actualChange = software.;
+//		double smallValue = 0.0001;
+//	    assertEquals(expected, actual, smallValue);
+//		
+//	}
 }
