@@ -125,8 +125,8 @@ public class SelfCheckoutStationSoftware {
 		session.printMenu();
 		choice = scanner.nextInt();
 
-		boolean receieptPrinted = false;
-		while(receieptPrinted == false) {
+		boolean receiptPrinted = false;
+		while(receiptPrinted == false) {
 			if(session != null && discrepancy.getDiscrepancy()) {
 				session.weightDiscrepancyMessage();
 				int weightChoice = scanner.nextInt();
@@ -178,17 +178,24 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payViaCoin();
-
-				break;
+        receiptPrinted = true;
+				System.exit(0);
 			}
-			else if (choice == 4) { //Pay Via Coin
+			else if (choice == 4) { //Pay Via Banknnote
 				PayViaBanknote.payViaBanknote();
-				break;
+				receiptPrinted = true;
+				System.exit(0);
 			}
-			else if (choice == 5) { //Exit
+			else if (choice == 5) { //Pay Via Debit
+				sessionSimulation.payViaDebit();
+        receiptPrinted = true;
+				System.exit(0);
+			}
+			
+			else if (choice == 6 { //Exit
 
 				System.out.println("Exiting System");
-				receieptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
 			if(discrepancy.getDiscrepancy() == false) {
@@ -330,6 +337,19 @@ public class SelfCheckoutStationSoftware {
 			}
 		} else {
 			System.out.println("No amount due");
+		}
+	}
+	
+	public void payViaDebit() {
+		boolean paymentGood = false;
+		PayDebitSwipe payment = new PayDebitSwipe();
+		payment.payByDebit();
+		if(paymentGood) {
+			System.out.println("Payment successful! Amount Due: 0");
+			//session.printReceipt();
+		}else {
+			System.out.println("Payment was unsuccessful\n");
+			System.out.println("Please try again or choose a different payment method\n");
 		}
 	}
 	
