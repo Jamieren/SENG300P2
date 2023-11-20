@@ -2,6 +2,7 @@
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 //import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
+import java.util.Scanner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +28,7 @@ import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 import com.thelocalmarketplace.software.Session;
+import com.thelocalmarketplace.software.HandheldBarcodeScanner;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.WeightDiscrepancy;
 
@@ -292,6 +295,48 @@ public class SoftwareTesting {
 
         sessionSimulation.scanBarcodedProduct(testBarcode);
 	}
+	
+	 @Test
+	    public void testSuccessfulHandheldBarcodeScan() {
+	        // Simulate user input for barcode
+	        String simulatedInput = "123456789012\n"; // replace with a valid barcode
+	        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+	        System.setIn(in);
+
+	        // Instantiate SelfCheckoutStationSoftware and set up the handheld scanner
+	        SelfCheckoutStationSoftware software = new SelfCheckoutStationSoftware();
+	        software.setHandheldScanner(new HandheldBarcodeScanner(new Scanner(in)));
+
+	        // Call the method that simulates scanning process
+	        Barcode scannedBarcode = software.simulateScanningProcess();
+
+	        // Expected barcode (based on your barcode structure)
+	        Numeral[] expectedNumeralArray = {Numeral.one, Numeral.two, Numeral.three, Numeral.four, Numeral.five, Numeral.six, Numeral.seven, Numeral.eight, Numeral.nine, Numeral.zero, Numeral.one, Numeral.two}; // Adjust as per your implementation
+	        Barcode expectedBarcode = new Barcode(expectedNumeralArray);
+
+	        // Assert that the scanned barcode matches the expected barcode
+	        assertEquals("Scanned barcode should match the expected barcode", expectedBarcode, scannedBarcode);
+	    }
+	 
+	 @Test
+	 public void testInvalidHandheldBarcodeScan() {
+	     // Simulate invalid barcode input
+	     String simulatedInput = "invalidbarcode\n";
+	     ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+	     System.setIn(in);
+
+	     SelfCheckoutStationSoftware software = new SelfCheckoutStationSoftware();
+	     software.setHandheldScanner(new HandheldBarcodeScanner(new Scanner(in)));
+
+	     // Call the method that simulates scanning process
+	     Barcode scannedBarcode = software.simulateScanningProcess();
+
+	     // Check if the system handles invalid barcodes appropriately
+	     // This depends on your implementation, e.g., returning a null or specific error handling
+	     assertNull("Invalid barcode should be handled appropriately", scannedBarcode);
+	     // Or use other assertions based on your error handling mechanism
+	 }
+
 	
 	@Test // Testing when user inputs '1' in main
 	public void promptMainWhen1Pressed() {

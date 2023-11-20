@@ -398,4 +398,9 @@ public class SelfCheckoutStationSoftware {
 		this.database = database;
 	}
 
+	public void setHandheldScanner(HandheldBarcodeScanner handheldBarcodeScanner) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
