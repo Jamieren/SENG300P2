@@ -1,7 +1,9 @@
 package com.thelocalmarketplace.software;
 
 import java.io.IOException;
+
 import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -95,9 +97,10 @@ public class Session {
     }
 
     public void subAmountDue(double amount) {
-        amountDue -= amount;
+
+    	amountDue -= amount;
     }
-    
+
 	Scanner scanner = new Scanner(System.in);
 
 	public void promptToStartSession() throws IOException{
@@ -145,8 +148,10 @@ public class Session {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
+
 				+ "\t 4. Pay via Banknote\n"
 				+ "\t 5. Exit\n"
+
 				+ "Choice: ");
 	}
          

@@ -13,12 +13,12 @@ import com.thelocalmarketplace.hardware.Product;
 
 public class TheLocalMarketPlaceDatabase {
 	
-	private static TheLocalMarketPlaceDatabase instance = null;
+//	private static TheLocalMarketPlaceDatabase instance = null;
 
 	private final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE;
 	private final Map<Product, Integer> INVENTORY;
 
-	private TheLocalMarketPlaceDatabase() {
+	public TheLocalMarketPlaceDatabase() {
 		BARCODED_PRODUCT_DATABASE = new HashMap<>();
 		INVENTORY = new HashMap<>();
 		populateDatabase();
@@ -51,14 +51,12 @@ public class TheLocalMarketPlaceDatabase {
 		addBarcodedProductToInventory(canOfBeans, 75);
 	}
 
-	
-
-	public static TheLocalMarketPlaceDatabase getInstance() {
-		if (instance == null) {
-			instance = new TheLocalMarketPlaceDatabase();
-		}
-		return instance;
-	}
+//	public static TheLocalMarketPlaceDatabase getInstance() {
+//		if (instance == null) {
+//			instance = new TheLocalMarketPlaceDatabase();
+//		}
+//		return instance;
+//	}
 
 	public void addBarcodedProductToDatabase(BarcodedProduct barcodedProduct) {
 		if(barcodedProduct != null) {
