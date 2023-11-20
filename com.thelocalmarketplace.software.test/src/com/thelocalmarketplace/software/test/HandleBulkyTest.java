@@ -54,13 +54,11 @@ public class HandleBulkyTest {
 	
 	@Test
 	public void correctlyAdjustsWhenWeightZero() {
-		// ensure weight on scale = 0
-		software.getSession().addTotalExpectedWeight(-software.getSession().getTotalExpectedWeight());
-		System.out.println(software.getSession().getTotalExpectedWeight());
+		// ensure the expected weight is equal to 0
+		assertTrue(software.getSession().getTotalExpectedWeight() == 0);
 		// "handle" the bulky item
 		software.handleBulkyItem(testProduct1);
 		// ensure the expected weight remains at 0
-		System.out.println(software.getSession().getTotalExpectedWeight());
 		assertTrue(software.getSession().getTotalExpectedWeight() == 0);
 	}
 	

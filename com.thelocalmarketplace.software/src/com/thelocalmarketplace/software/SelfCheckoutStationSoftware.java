@@ -19,13 +19,6 @@ import com.jjjwelectronics.scanner.Barcode;
 import com.jjjwelectronics.scanner.BarcodeScannerBronze;
 import com.jjjwelectronics.scanner.BarcodeScannerSilver;
 import com.jjjwelectronics.scanner.BarcodedItem;
-import com.tdc.CashOverloadException;
-import com.tdc.DisabledException;
-import com.tdc.NoCashAvailableException;
-import com.tdc.coin.Coin;
-import com.tdc.coin.CoinDispenserBronze;
-import com.tdc.coin.CoinDispenserGold;
-import com.tdc.coin.CoinSlot;
 import com.tdc.banknote.BanknoteValidator;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
@@ -75,18 +68,8 @@ public class SelfCheckoutStationSoftware {
 	
 	private static WeightDiscrepancy discrepancy;
 	
-	private static CoinSlot coinSlot;
-	
-	private static Coin insertedCoin;
-	
-	private static CoinDispenserBronze bronzeDispenser;
-	
 	private static HandheldBarcodeScanner handheldScanner;
 
-	private static CoinDispenserGold goldDispenser;
-	
-	
-	
 
 	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
@@ -99,7 +82,7 @@ public class SelfCheckoutStationSoftware {
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
-	
+
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
@@ -148,8 +131,8 @@ public class SelfCheckoutStationSoftware {
 		session.printMenu();
 		choice = scanner.nextInt();
 
-		boolean receiptPrinted = false;
-		while(receiptPrinted == false) {
+		boolean receieptPrinted = false;
+		while(receieptPrinted == false) {
 			if(session != null && discrepancy.getDiscrepancy()) {
 				session.weightDiscrepancyMessage();
 				int weightChoice = scanner.nextInt();
@@ -191,29 +174,18 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
-				sessionSimulation.payWithCoin();
-//				break;
+				sessionSimulation.payViaCoin();
+
+				break;
 			}
-			else if (choice == 4) { //Exit
-				System.out.println("Exiting System");
-				receieptPrinted = true;
-				System.exit(0);
-			}
-			else if (choice == 4) { //Pay Via Banknnote
+			else if (choice == 4) { //Pay Via Coin
 				PayViaBanknote.payViaBanknote();
-				receiptPrinted = true;
-				System.exit(0);
+				break;
 			}
-			else if (choice == 5) { //Pay Via Debit
-				sessionSimulation.payViaDebit();
-        receiptPrinted = true;
-				System.exit(0);
-			}
-			
-			else if (choice == 6) { //Exit
+			else if (choice == 5) { //Exit
 
 				System.out.println("Exiting System");
-				receiptPrinted = true;
+				receieptPrinted = true;
 				System.exit(0);
 			}
 			if(discrepancy.getDiscrepancy() == false) {
@@ -313,7 +285,6 @@ public class SelfCheckoutStationSoftware {
 				}
 				break;
 				case "NO":
-					session.addTotalExpectedWeight(product.getExpectedWeight());
 					// Process bulky item
 					handleBulkyItem(product);
 					
@@ -321,25 +292,20 @@ public class SelfCheckoutStationSoftware {
 					BarcodedItem exemptItem = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 					session.newOrderItem(exemptItem);
 					// Reallocate expected weight as if item was added.
-					session.addAmountDue(product.getPrice());
+					session.addTotalExpectedWeight(product.getExpectedWeight());
 					
-					Mass totalExpectedMass1 = new Mass(session.getTotalExpectedWeight());
-
+					// Check for discrepancy.
+					Mass expectedMass = new Mass(session.getTotalExpectedWeight());
 					try {
-						System.out.println("Expected Weight: " + totalExpectedMass1.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
-						int diff = totalExpectedMass1.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-						System.out.println(diff);
+						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 						if(diff != 0) {
-							System.out.println("Test: " + totalExpectedMass1.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 							discrepancy.setDiscrepancy(true);
-										//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 							System.out.println("Weight discrepancy detected");
 						}
 					} catch (OverloadedDevice e) {
-						//do nothing
+						// do nothing or else
 					}
-					
-					
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
@@ -349,55 +315,38 @@ public class SelfCheckoutStationSoftware {
 		}
 	}
 	
-	// potentially put this in a class of its own
-	public void payWithCoin(Coin...coins) {
-		// this could be anything but we could set it to 1000
-		int coinCapacity = 1000;
 	
-		System.out.print("session amount need to pay:" + session.getAmountDue() + "\n");
+	public void payViaCoin() {
 		if(session.getAmountDue() != 0) {
 			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
-					
-			// This is to compare the value we put in to the total amount we get in session
-			for(Coin coin: coins) {
-				if(denoms.contains(coin.getValue())) {
-					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
-					
-					session.subAmountDue(coin.getValue().doubleValue());
-					System.out.print("session get amount after coin insert:" + session.getAmountDue() + "\n");
-					
-					if(session.getAmountDue() == 0) {
+			System.out.println("Choose denomination of coin being inserted:");
+			for(BigDecimal denom : denoms) {
+				System.out.println("\t" + denom);
+			}
+			System.out.print("Denomination: ");
+			BigDecimal denom = scanner.nextBigDecimal();
+
+			while(denom.compareTo(new BigDecimal("-1")) != 0 && session.getAmountDue() > 0) {
+				if(denoms.contains(denom)) {
+					session.subAmountDue(denom.intValue());
+					if(session.getAmountDue() <= 0) {
 						System.out.println("Fully paid amount");
 						session.getOrderItem().clear();
-					}
-					else if(session.getAmountDue()<0){
-						System.out.println("Amount paid over, change return");
-						session.getOrderItem().clear();
-			
-						double returnChange = -(session.getAmountDue());
-						System.out.print("Change returned: " + returnChange);
 						return;
 					}
-				} 
-				else {
+					System.out.println("Amount due remaining : " + session.getAmountDue());
+				} else {
 					System.out.println("Invalid Denomination amount, please try again");
-				}				
+				}
+				System.out.println("Choose denomination of coin being inserted:");
+				for(BigDecimal denom2 : denoms) {
+					System.out.println("\t" + denom2);
+				}
+				System.out.print("Denomination: ");
+				denom = scanner.nextBigDecimal();
 			}
 		} else {
 			System.out.println("No amount due");
-		}
-	}
-	
-	public void payViaDebit() {
-		boolean paymentGood = false;
-		PayDebitSwipe payment = new PayDebitSwipe();
-		payment.payByDebit();
-		if(paymentGood) {
-			System.out.println("Payment successful! Amount Due: 0");
-			//session.printReceipt();
-		}else {
-			System.out.println("Payment was unsuccessful\n");
-			System.out.println("Please try again or choose a different payment method\n");
 		}
 	}
 	
@@ -417,6 +366,9 @@ public class SelfCheckoutStationSoftware {
 		
 		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
 	}
+	
+	
+	
 	
 	
 	// Getters For Testing Purposes
