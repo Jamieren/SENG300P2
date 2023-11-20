@@ -1,3 +1,5 @@
+package com.thelocalmarketplace;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.software.Session;
 
 public class PayViaBanknote {
 

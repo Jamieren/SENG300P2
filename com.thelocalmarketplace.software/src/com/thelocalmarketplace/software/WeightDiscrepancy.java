@@ -1,11 +1,11 @@
 package com.thelocalmarketplace.software;
 
-import com.thelocalmarketplace.hardware.BarcodedProduct;
-
 import java.math.BigDecimal;
 /*
  * 
  * */
+
+import com.thelocalmarketplace.hardware.BarcodedProduct;
 
 public class WeightDiscrepancy {
 

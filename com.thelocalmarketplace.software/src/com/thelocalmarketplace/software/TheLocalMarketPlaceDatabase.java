@@ -7,9 +7,6 @@ import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.scanner.Barcode;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
-/* 
- * Simple database for the Local Market Place 
- * */
 
 public class TheLocalMarketPlaceDatabase {
 	
