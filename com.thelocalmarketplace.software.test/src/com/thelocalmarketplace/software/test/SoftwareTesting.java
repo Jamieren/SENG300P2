@@ -291,6 +291,8 @@ public class SoftwareTesting {
 		testDatabase.addBarcodedProductToDatabase(testBarcodedProduct);
 
         sessionSimulation.scanBarcodedProduct(testBarcode);
+        
+        
 	}
 	
 	@Test // Testing when user inputs '1' in main
@@ -345,6 +347,9 @@ public class SoftwareTesting {
 //		sessionSimulation.promptEnterToContinue();
 //	}
 //	
+	
+	
+
 }
 
 
