@@ -1,12 +1,15 @@
 package com.thelocalmarketplace.software;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.scanner.Barcode;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
+import com.thelocalmarketplace.hardware.external.CardIssuer;
 /* 
  * Simple database for the Local Market Place 
  * */
@@ -17,10 +20,15 @@ public class TheLocalMarketPlaceDatabase {
 
 	private final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE;
 	private final Map<Product, Integer> INVENTORY;
+	private final Map<String, Card> CARDS;
+	private final Map<String, CardIssuer> BANKS;
+	
 
 	public TheLocalMarketPlaceDatabase() {
 		BARCODED_PRODUCT_DATABASE = new HashMap<>();
 		INVENTORY = new HashMap<>();
+		CARDS = new HashMap<>();
+		BANKS = new HashMap<>();
 		populateDatabase();
 	}
 	
@@ -49,6 +57,14 @@ public class TheLocalMarketPlaceDatabase {
 		addBarcodedProductToInventory(bread, 35);
 		addBarcodedProductToInventory(eggs, 44);
 		addBarcodedProductToInventory(canOfBeans, 75);
+		
+		CARDS.put("2648264926081648", new Card("Visa", "2648264926081648", "John Smith", "123"));
+		CardIssuer visa = new CardIssuer("Visa", 5);
+		Calendar c = Calendar.getInstance();
+		c.set(2026, 5, 20);
+		visa.addCardData("2648264926081648", "John Smith", c , "123", 1000.00);
+		BANKS.put("Visa",visa);
+		
 	}
 
 //	public static TheLocalMarketPlaceDatabase getInstance() {
@@ -80,6 +96,18 @@ public class TheLocalMarketPlaceDatabase {
 
 	public int getInventoryOfBarcodedProduct(BarcodedProduct barcodedProduct) {
 		return INVENTORY.get(barcodedProduct);
+	}
+	
+	public Card getCard(String cardNum) {
+		return CARDS.get(cardNum);
+	}
+	
+	public CardIssuer getBank(String bankName) {
+		return BANKS.get(bankName);
+	}
+	
+	public boolean isCard(String cardNum) {
+		return CARDS.containsKey(cardNum);
 	}
 
 }
