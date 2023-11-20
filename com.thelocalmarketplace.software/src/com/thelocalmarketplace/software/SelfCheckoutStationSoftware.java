@@ -80,8 +80,6 @@ public class SelfCheckoutStationSoftware {
 	private static Coin insertedCoin;
 	
 	private static CoinDispenserBronze bronzeDispenser;
-	
-	private static HandheldBarcodeScanner handheldScanner;
 
 	private static CoinDispenserGold goldDispenser;
 	
@@ -106,7 +104,7 @@ public class SelfCheckoutStationSoftware {
 		
 		scanner = new Scanner(System.in);	
 		
-		SelfCheckoutStationSoftware.handheldScanner = new HandheldBarcodeScanner(scanner); // Pass the existing scanner object
+		SelfCheckoutStationSoftware.bronzeHandheldScanner = new BarcodeScannerBronze(); // Pass the existing scanner object
 			
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
