@@ -20,7 +20,8 @@ public class Session {
 	private static double amountDue;
 	private static WeightDiscrepancy weightDiscrepancy;
 	
-	private Session() {
+	// had to make this public
+	public Session() {
 		//Instantiate data
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;
@@ -148,10 +149,9 @@ public class Session {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
-
 				+ "\t 4. Pay via Banknote\n"
-				+ "\t 5. Exit\n"
-
+				+ "\t 5. Pay via Debit\n"
+				+ "\t 6. Exit\n"
 				+ "Choice: ");
 	}
          
