@@ -93,6 +93,7 @@ public class SelfCheckoutStationSoftware {
 		selfCheckoutStationBronze.turnOn();
 		
 		bronzeBaggingArea = new ElectronicScaleBronze();
+		PowerGrid.engageUninterruptiblePowerSource();
 		bronzeBaggingArea.plugIn(PowerGrid.instance());
 		bronzeBaggingArea.turnOn();
 
@@ -234,12 +235,15 @@ public class SelfCheckoutStationSoftware {
 				
 				session.addTotalExpectedWeight(product.getExpectedWeight());
 				session.addAmountDue(product.getPrice());
+				bronzeBaggingArea.addAnItem(item);
 				Mass totalExpectedMass = new Mass(session.getTotalExpectedWeight());
 
 				try {
+					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
 					int diff = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+					System.out.println(diff);
 					if(diff != 0) {
-						System.out.println("Test: " + totalExpectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 						discrepancy.setDiscrepancy(true);
 									//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 						System.out.println("Weight discrepancy detected");
