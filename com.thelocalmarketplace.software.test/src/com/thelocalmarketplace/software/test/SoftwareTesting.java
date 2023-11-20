@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 
 //import java.math.BigDecimal;
@@ -300,7 +301,7 @@ public class SoftwareTesting {
 	    public void testSuccessfulHandheldBarcodeScan() {
 	        // Simulate user input for barcode
 	        String simulatedInput = "123456789012\n"; // replace with a valid barcode
-	        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+	        InputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
 	        System.setIn(in);
 
 	        // Instantiate SelfCheckoutStationSoftware and set up the handheld scanner
@@ -322,7 +323,7 @@ public class SoftwareTesting {
 	 public void testInvalidHandheldBarcodeScan() {
 	     // Simulate invalid barcode input
 	     String simulatedInput = "invalidbarcode\n";
-	     ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+	     InputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
 	     System.setIn(in);
 
 	     SelfCheckoutStationSoftware software = new SelfCheckoutStationSoftware();
@@ -383,6 +384,22 @@ public class SoftwareTesting {
 //		SessionSimulation.main(new String[0]);
 	}
 	
+	@Test
+	public void someTest() {
+	    // Store the original System.in to restore it later
+	    InputStream sysInBackup = System.in; 
+	    ByteArrayInputStream in = new ByteArrayInputStream("some input".getBytes());
+	    System.setIn(in);
+
+	    try {
+	        // ... perform test ...
+	    } finally {
+	        // Reset System.in to its original
+	        System.setIn(sysInBackup);
+	    }
+	}
+
+
 	
 //	@Test(expected = IOException.class)
 //	// Testing that promptEnterToContinue runs when user input is \"ENTER"\
