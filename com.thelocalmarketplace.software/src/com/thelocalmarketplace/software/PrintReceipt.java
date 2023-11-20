@@ -16,15 +16,18 @@ public class PrintReceipt implements ReceiptPrinterListener {
 
 	    public void print() {
 	        try {
+	            // Print the payment record
+	            for (char c : paymentRecord.toCharArray()) {
+	                receiptPrinter.print(c);
+	            }
+
+	            // Print a newline to separate the payment record and amount due
+	            receiptPrinter.print('\n');
+
 	            // Print the amount due
 	            String amountDueString = String.format("Amount Due: $%.2f", amountDue);
 	            for (char c : amountDueString.toCharArray()) {
 	                receiptPrinter.print(c);
-	                
-	             // Print a newline to separate the payment record and amount due
-		            receiptPrinter.print('\n');
-
-
 	            }
 
 
@@ -38,25 +41,21 @@ public class PrintReceipt implements ReceiptPrinterListener {
 	    @Override
 	    public void thePrinterIsOutOfInk() {
 	        System.out.println("Printer is out of ink. Printing aborted.");
-	        // Additional handling logic can be added here
 	    }
 
 	    @Override
 	    public void thePrinterIsOutOfPaper() {
 	        System.out.println("Printer is out of paper. Printing aborted.");
-	        // Additional handling logic can be added here
 	    }
 
 	    @Override
 	    public void inkHasBeenAddedToThePrinter() {
 	        System.out.println("Ink has been added to the printer. Ready to print.");
-	        // Additional handling logic can be added here
 	    }
 
 	    @Override
 	    public void paperHasBeenAddedToThePrinter() {
 	        System.out.println("Paper has been added to the printer. Ready to print.");
-	        // Additional handling logic can be added here
 	    }
 		@Override
 		public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
