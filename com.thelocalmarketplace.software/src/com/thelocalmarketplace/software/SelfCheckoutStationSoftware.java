@@ -203,10 +203,11 @@ public class SelfCheckoutStationSoftware {
 					i++;
 				}
 				Barcode barcode = new Barcode(barcodeNumeral);
-				sessionSimulation.scanBarcodedProduct(barcode);
-				
+				sessionSimulation.scanBarcodedProduct(barcode);	
+			} else {
+		        System.out.println("Invalid scanner choice.");
 			}
-			}
+		}
 			
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payWithCoin();
