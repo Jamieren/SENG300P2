@@ -147,7 +147,7 @@ public class Session {
 		System.out.print("\n============================\n"
 				+ "Choose option:\n"
 				+ "\t 1. Activate Session\n"
-				+ "\t 2. Add Item\n"
+				+ "\t 2. Add Item Via Handheldscanner\n"
 				+ "\t 3. Pay via Coin\n"
 				+ "\t 4. Pay via Banknote\n"
 				+ "\t 5. Pay via Debit\n"
