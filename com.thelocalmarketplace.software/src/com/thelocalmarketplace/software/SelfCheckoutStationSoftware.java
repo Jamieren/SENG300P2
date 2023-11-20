@@ -323,20 +323,39 @@ public class SelfCheckoutStationSoftware {
 		Coin testCoin = new Coin(testValue);
 		double changeDue = -(session.getAmountDue());
 		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+		
+		// these are used as sub until i can figure out how to access specified denomination of gold and bronze dispensers
+		BigDecimal denomValueBronze = new BigDecimal("0.25");
+		BigDecimal denomValueGold = new BigDecimal("1");
+		
+		
 
 		goldDispenser = new CoinDispenserGold(coinCapacity);
-		coinTray = new CoinTray(15);
+		//coinTray = new CoinTray(15);
 		
 		while (changeDue != 0) {
-					
-			try {
-				bronzeDispenser.emit(); 
-					//update change due somehow
-				//changeDue -= coinvalue removed
-			} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if((changeDue / denomValueGold.doubleValue()) > 1){
+				try {
+					goldDispenser.emit(); 
+						//update change due somehow
+					//changeDue -= coinvalue removed
+				} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			
+			else if (changeDue / denomValueBronze.doubleValue()> 1) {
+				try {
+					bronzeDispenser.emit(); 
+						//update change due somehow
+					//changeDue -= coinvalue removed
+				} catch (CashOverloadException | NoCashAvailableException | DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}	
 		
 		}
 		
