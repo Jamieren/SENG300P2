@@ -178,21 +178,21 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 3) { //Pay Via Coin
 				sessionSimulation.payViaCoin();
-        receiptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
 			else if (choice == 4) { //Pay Via Banknnote
-				PayViaBanknote.payViaBanknote();
+				//PayViaBanknote.payViaBanknote();
 				receiptPrinted = true;
 				System.exit(0);
 			}
 			else if (choice == 5) { //Pay Via Debit
 				sessionSimulation.payViaDebit();
-        receiptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
 			
-			else if (choice == 6 { //Exit
+			else if (choice == 6) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
