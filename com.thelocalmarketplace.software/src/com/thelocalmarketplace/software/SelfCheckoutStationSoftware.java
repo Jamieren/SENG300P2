@@ -206,11 +206,15 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 5) { //Pay Via Debit
 				sessionSimulation.payViaDebit();
-        receiptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
-			
-			else if (choice == 6) { //Exit
+			else if (choice == 6) { //Pay Via Credit
+				sessionSimulation.payViaCredit();
+				receiptPrinted = true;
+				System.exit(0);
+			}
+			else if (choice == 7) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
@@ -400,6 +404,25 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("Please try again or choose a different payment method\n");
 		}
 	}
+	
+	public void payViaCredit() {
+		if(session.getAmountDue() == 0) {
+			System.out.println("Fully paid amount");
+		}
+		else {
+			PayViaCredit payment = new PayViaCredit();
+			Boolean res = payment.CreditSwipe(database);
+			if(res) {
+				System.out.println("Payment successful! Amount Due: 0");
+			}
+			else {
+				System.out.println("Payment was unsuccessful\n");
+				System.out.println("Please try again or choose a different payment method\n");
+				}
+		}
+		
+	}
+	
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
 		Double productWeight = toBeExempted.getExpectedWeight();

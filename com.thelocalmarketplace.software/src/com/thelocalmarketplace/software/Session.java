@@ -151,7 +151,8 @@ public class Session {
 				+ "\t 3. Pay via Coin\n"
 				+ "\t 4. Pay via Banknote\n"
 				+ "\t 5. Pay via Debit\n"
-				+ "\t 6. Exit\n"
+				+ "\t 6. Pay via Credit\n"
+				+ "\t 7. Exit\n"
 				+ "Choice: ");
 	}
          
