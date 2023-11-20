@@ -26,43 +26,58 @@ import com.thelocalmarketplace.hardware.external.CardIssuer;
  */
 public class PayDebitSwipe implements CardReaderListener{
 	
-	private Card card;
+	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
 	private CardReaderListener cardReader;
-	private CardIssuer bank;
+	private CardIssuer bank = new CardIssuer("bank", 100);
 	private double amountDue;
+	private Card.CardSwipeData data = null;
+	boolean paymentGood = false;
 	
 	public boolean payByDebit() {
 		amountDue = Session.getInstance().getAmountDue();
 		System.out.println("Please swipe your card: ");
 		cardSwipe(card);
-		String cardNumber = this.card.number;
-		long holdNumber = bank.authorizeHold(cardNumber, amountDue);
-		
-		if(holdNumber != -1) {
-			boolean paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
-			bank.releaseHold(cardNumber, holdNumber);
-			
-			return paymentGood;
+		if(signatureVerify()){
+			theDataFromACardHasBeenRead(data);
 		}
-		return false;
+		return paymentGood;
 	}
 	
-	private void cardSwipe(Card card) {
+	private Card.CardSwipeData cardSwipe(Card card) {
 		try {
-			Card.CardSwipeData data = card.swipe();
+			data = card.swipe();
 			System.out.println("Card has been swiped");
-			
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return data;
 	}
 	
-	private String signaturePrompt() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Please sign here: ");
-		return scanner.nextLine();
+	private boolean signatureVerify() {
+		System.out.println("Please sign here: \n");
+		return true;
+	}
+	
+	private boolean amountPaid(String cardNumber) {
+		long holdNumber = 0;
+		bank.unblock(cardNumber);
+		holdNumber = bank.authorizeHold(cardNumber, amountDue);
+		System.out.println(cardNumber);
+		
+		if(holdNumber != -1) {
+			System.out.println("Hold authorized. Hold Number: " + holdNumber);
+			paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
+			bank.releaseHold(cardNumber, holdNumber);
+			
+			if(paymentGood) {
+				System.out.println("Success");
+			}else {
+				System.out.println("Failed");
+			}
+		}
+		return paymentGood;
 	}
 
 	@Override
@@ -97,10 +112,9 @@ public class PayDebitSwipe implements CardReaderListener{
 
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data) {
-		// TODO Auto-generated method stub
-		
+		String cardNumber = data.getNumber();
+		amountPaid(cardNumber);
 	}
-
 }
 
 
