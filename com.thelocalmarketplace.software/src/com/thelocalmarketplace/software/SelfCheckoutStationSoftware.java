@@ -299,8 +299,13 @@ public class SelfCheckoutStationSoftware {
 		// 3. [SIMULATE] Signals to the Attendant that a no-bagging request is in progress.
 		// 4. Signals to the System that the request is approved.
 		System.out.println("Bagging exemption approved.");
+		
 		// 5. Reduces the expected weight in the bagging area by the expected weight of the item
-		session.addTotalExpectedWeight(-productWeight);
+		if ((session.getTotalExpectedWeight() - productWeight) >= 0) { // if the difference >= 0, remove the weight
+			session.addTotalExpectedWeight(-productWeight); 
+		} else { // set to 0 if difference < 0.
+			session.addTotalExpectedWeight(-session.getTotalExpectedWeight());
+		}
 		
 		System.out.println(toBeExempted.getDescription() + " was not added to bagging area");
 	}
