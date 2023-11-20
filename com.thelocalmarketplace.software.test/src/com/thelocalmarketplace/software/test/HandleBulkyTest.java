@@ -35,11 +35,10 @@ public class HandleBulkyTest {
 		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
 		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		
-		software.initDatabase();
+		software.getDatabase();
 		software.initSelfStationBronze();
 		software.initSession();
 		
-		software.getDatabase().addBarcodedProductToDatabase(testProduct1);
 	}
 	
 	@Test
