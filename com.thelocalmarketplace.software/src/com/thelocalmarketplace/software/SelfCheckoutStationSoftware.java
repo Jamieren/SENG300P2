@@ -224,7 +224,6 @@ public class SelfCheckoutStationSoftware {
 		scanner.close();
 	}
 	
-	
 
 
 	public void removeItem(Barcode barcode) {

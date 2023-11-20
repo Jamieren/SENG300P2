@@ -55,9 +55,7 @@ public class Session {
     }
 	
     public ArrayList<BarcodedItem> getOrderItem() {
-    	if(orderItems == null) {
-    		throw new NullPointerException();
-    	}
+    	if(orderItems == null) {throw new NullPointerException(); }
     	return orderItems;
     }
     
@@ -111,6 +109,7 @@ public class Session {
 		System.out.println("Enter \"1\" to activate a session: ");
 		choice = scanner.nextInt();
 		if (choice == 1) {
+
 			activate();
 		}
 		else {
@@ -166,4 +165,5 @@ public class Session {
 				 + "\t4. Exit\n"
 				 + "Choice: ");
     }
+
 }
