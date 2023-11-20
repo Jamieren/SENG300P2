@@ -196,7 +196,7 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 4) { //Exit
 				System.out.println("Exiting System");
-				receieptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
 			else if (choice == 4) { //Pay Via Banknnote
