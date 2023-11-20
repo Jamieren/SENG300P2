@@ -20,8 +20,6 @@ import com.tdc.DisabledException;
 import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
-import com.thelocalmarketplace.software.SelfCheckoutController;
-import com.thelocalmarketplace.software.SelfCheckoutSession;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.Session;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;

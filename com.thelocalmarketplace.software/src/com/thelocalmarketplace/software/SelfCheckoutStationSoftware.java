@@ -296,11 +296,9 @@ public class SelfCheckoutStationSoftware {
 					else if(session.getAmountDue()<0){
 						System.out.println("Amount paid over, change return");
 						session.getOrderItem().clear();
-						// amount of change given back (should be negative?)
+			
 						double returnChange = -(session.getAmountDue());
 						System.out.print("Change returned: " + returnChange);
-						// how to fix this?
-//						bronzeDispenser.emit();
 						return;
 					}
 				} 
