@@ -1,10 +1,13 @@
 package com.thelocalmarketplace.software;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
+import com.jjjwelectronics.card.AbstractCardReader;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
 import com.jjjwelectronics.card.Card.CardSwipeData;
@@ -24,7 +27,7 @@ import com.thelocalmarketplace.hardware.external.CardIssuer;
  * 
  * Responsible for allowing customer to pay by debit via swipe
  */
-public class PayDebitSwipe implements CardReaderListener{
+public class PayDebitSwipe extends AbstractCardReader implements CardReaderListener{
 	
 	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
 	private CardReaderListener cardReader;
@@ -32,6 +35,7 @@ public class PayDebitSwipe implements CardReaderListener{
 	private double amountDue;
 	private Card.CardSwipeData data = null;
 	boolean paymentGood = false;
+	//private HashMap<String, CardRecord> database;
 	
 	public boolean payByDebit() {
 		amountDue = Session.getInstance().getAmountDue();
@@ -60,12 +64,13 @@ public class PayDebitSwipe implements CardReaderListener{
 		return true;
 	}
 	
-	private boolean amountPaid(String cardNumber) {
+	private boolean amountPaid(String cardNumber, CardData data) {
 		long holdNumber = 0;
-		bank.unblock(cardNumber);
+//		bank.unblock(cardNumber);
 		holdNumber = bank.authorizeHold(cardNumber, amountDue);
-		System.out.println(cardNumber);
-		
+		System.out.println(amountDue);
+		//boolean block = false;
+//		block = ;
 		if(holdNumber != -1) {
 			System.out.println("Hold authorized. Hold Number: " + holdNumber);
 			paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
@@ -112,8 +117,16 @@ public class PayDebitSwipe implements CardReaderListener{
 
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data) {
+		Calendar expiry = null;
 		String cardNumber = data.getNumber();
-		amountPaid(cardNumber);
+		String cardType = data.getType();
+		String cardholder = data.getCardholder();
+		System.out.println("stopped");
+		String cvv = null;
+		expiry = expiry.getInstance();
+		
+		bank.addCardData(cardNumber, cardholder, expiry, cvv, 50);
+		amountPaid(cardNumber, data);
 	}
 }
 
