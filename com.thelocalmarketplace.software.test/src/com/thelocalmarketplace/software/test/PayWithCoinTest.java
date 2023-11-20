@@ -83,7 +83,7 @@ public class PayWithCoinTest {
 	@Test
 	public void exactCoinsInputed() {
 		session.addAmountDue(0.75);
-		ArrayList<Coin> coinsList = new ArrayList<>();;
+		ArrayList<Coin> coinsList = new ArrayList<>();
 		coinsList.add(quarter);
 		coinsList.add(quarter);
 		coinsList.add(quarter);
@@ -95,14 +95,45 @@ public class PayWithCoinTest {
 		
 	}
 	
-//	@Test
-//	public void moreThanAmountCoinsInputed() {
-//		session.addAmountDue(0.75);
-//		software.payWithCoin(quarter, dime, loonie);
-//		double expectedChange = 0.60;
-//		double actualChange = software.;
-//		double smallValue = 0.0001;
-//	    assertEquals(expected, actual, smallValue);
-//		
-//	}
+	@Test
+	public void moreThanAmountCoinsInputed() {
+		session.addAmountDue(0.75);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(dime);
+		coinsList.add(loonie);
+		software.payWithCoin(coinsList);
+		double expectedChange = (-0.60);
+		double actualChange = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expectedChange, actualChange, smallValue);
+	}
+	
+	@Test
+	public void lessAmountCoinsInputed() {
+		session.addAmountDue(0.75);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(dime);
+		software.payWithCoin(coinsList);
+		double expected = 0.40;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+	}
+	
+	@Test
+	public void zeroCoinsInputed() {
+		session.addAmountDue(0.54);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		software.payWithCoin(coinsList);
+		double expected = 0.54;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+	}
+	
+	// might put in null pointer test
+
+	
 }
