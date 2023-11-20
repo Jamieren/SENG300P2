@@ -62,7 +62,7 @@ public class PayWithCoinTest {
 		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
 		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
 		
-		software.getDatabase();
+		software.initDatabase();
 		software.initSelfStationBronze();
 		software.initSession();
 		

@@ -34,7 +34,7 @@ public class printrecieptstest {
 		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
 		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
         
-        software.getDatabase();
+        software.initDatabase();
 		software.initSelfStationBronze();
 		software.initSession();
 		
