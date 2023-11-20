@@ -103,7 +103,7 @@ public class SelfCheckoutStationSoftware {
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
-
+	
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
@@ -216,11 +216,15 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 5) { //Pay Via Debit
 				sessionSimulation.payViaDebit();
-        receiptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
-			
-			else if (choice == 6) { //Exit
+			else if (choice == 6) { //Pay Via Credit
+				sessionSimulation.payViaCredit();
+				receiptPrinted = true;
+				System.exit(0);
+			}
+			else if (choice == 7) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
@@ -323,6 +327,7 @@ public class SelfCheckoutStationSoftware {
 				}
 				break;
 				case "NO":
+					session.addTotalExpectedWeight(product.getExpectedWeight());
 					// Process bulky item
 					handleBulkyItem(product);
 					
@@ -330,20 +335,25 @@ public class SelfCheckoutStationSoftware {
 					BarcodedItem exemptItem = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 					session.newOrderItem(exemptItem);
 					// Reallocate expected weight as if item was added.
-					session.addTotalExpectedWeight(product.getExpectedWeight());
+					session.addAmountDue(product.getPrice());
 					
-					// Check for discrepancy.
-					Mass expectedMass = new Mass(session.getTotalExpectedWeight());
+					Mass totalExpectedMass1 = new Mass(session.getTotalExpectedWeight());
+
 					try {
-						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println("Expected Weight: " + totalExpectedMass1.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
+						int diff = totalExpectedMass1.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println(diff);
 						if(diff != 0) {
-							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							System.out.println("Test: " + totalExpectedMass1.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 							discrepancy.setDiscrepancy(true);
+										//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 							System.out.println("Weight discrepancy detected");
 						}
 					} catch (OverloadedDevice e) {
-						// do nothing or else
+						//do nothing
 					}
+					
+					
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
@@ -453,6 +463,25 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("Please try again or choose a different payment method\n");
 		}
 	}
+	
+	public void payViaCredit() {
+		if(session.getAmountDue() == 0) {
+			System.out.println("Fully paid amount");
+		}
+		else {
+			PayViaCredit payment = new PayViaCredit();
+			Boolean res = payment.CreditSwipe(database);
+			if(res) {
+				System.out.println("Payment successful! Amount Due: 0");
+			}
+			else {
+				System.out.println("Payment was unsuccessful\n");
+				System.out.println("Please try again or choose a different payment method\n");
+				}
+		}
+		
+	}
+	
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
 		Double productWeight = toBeExempted.getExpectedWeight();
