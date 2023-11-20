@@ -268,6 +268,7 @@ public class SelfCheckoutStationSoftware {
 				}
 				break;
 				case "NO":
+					session.addTotalExpectedWeight(product.getExpectedWeight());
 					// Process bulky item
 					handleBulkyItem(product);
 					
@@ -275,20 +276,25 @@ public class SelfCheckoutStationSoftware {
 					BarcodedItem exemptItem = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 					session.newOrderItem(exemptItem);
 					// Reallocate expected weight as if item was added.
-					session.addTotalExpectedWeight(product.getExpectedWeight());
+					session.addAmountDue(product.getPrice());
 					
-					// Check for discrepancy.
-					Mass expectedMass = new Mass(session.getTotalExpectedWeight());
+					Mass totalExpectedMass1 = new Mass(session.getTotalExpectedWeight());
+
 					try {
-						int diff = expectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println("Expected Weight: " + totalExpectedMass1.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
+						int diff = totalExpectedMass1.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+						System.out.println(diff);
 						if(diff != 0) {
-							System.out.println("Test: " + expectedMass + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							System.out.println("Test: " + totalExpectedMass1.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
 							discrepancy.setDiscrepancy(true);
+										//product, bronzeBaggingArea.getCurrentMassOnTheScale().inGrams()
 							System.out.println("Weight discrepancy detected");
 						}
 					} catch (OverloadedDevice e) {
-						// do nothing or else
+						//do nothing
 					}
+					
+					
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
