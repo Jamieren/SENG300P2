@@ -318,25 +318,21 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 	public void returnChange()  {
-		int coinCapacity = 1000;
-		BigDecimal testValue = new BigDecimal("0.25");
-		Coin testCoin = new Coin(testValue);
-		double changeDue = -(session.getAmountDue());
-		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
 		
-		// these are used as sub until i can figure out how to access specified denomination of gold and bronze dispensers
+		int coinCapacity = 1000;
+		double changeDue = -(session.getAmountDue());
+		
+		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+		goldDispenser = new CoinDispenserGold(coinCapacity);
+		
+		// these are used as a sub until i can figure out how to access specified denomination of gold and bronze dispensers
 		BigDecimal denomValueBronze = new BigDecimal("0.25");
 		BigDecimal denomValueGold = new BigDecimal("1");
 		
-		
-
-		goldDispenser = new CoinDispenserGold(coinCapacity);
-		//coinTray = new CoinTray(15);
-		
 		while (changeDue != 0) {
 			
-			if((changeDue / denomValueGold.doubleValue()) > 1){
-				try {
+			if((changeDue / denomValueGold.doubleValue()) > 1 && (goldDispenser.size() > 0)) { // check if the amount to return is large 
+				try {																		   //enough for this denom to be used
 					goldDispenser.emit(); 
 						//update change due somehow
 					//changeDue -= coinvalue removed
@@ -346,7 +342,7 @@ public class SelfCheckoutStationSoftware {
 				}
 			}
 			
-			else if (changeDue / denomValueBronze.doubleValue()> 1) {
+			else if (changeDue / denomValueBronze.doubleValue()> 1  && (bronzeDispenser.size() > 0)) {
 				try {
 					bronzeDispenser.emit(); 
 						//update change due somehow
