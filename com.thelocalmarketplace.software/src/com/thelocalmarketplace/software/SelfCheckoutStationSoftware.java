@@ -343,10 +343,11 @@ public class SelfCheckoutStationSoftware {
 	public void addItemWithHandheldScanner() {
 		
 		//sicne there's no actual product is scanned, we are runing the simulaiton
+		//using seperated method for future modification
 		
 	    System.out.println("Please enter the barcode number with handheld scanner");
 	    
-		BigDecimal barcodeInput = scanner.nextBigDecimal();
+	    BigDecimal barcodeInput = scanner.nextBigDecimal();
 		
 		String barcodeInputString = barcodeInput.toString();
 
@@ -358,10 +359,6 @@ public class SelfCheckoutStationSoftware {
 		}
 		Barcode barcode = new Barcode(barcodeNumeral);
 		sessionSimulation.scanBarcodedProduct(barcode);	
-
-	   
-	    // Now process this barcode as if it was scanned
-	    scanBarcodedProduct(barcode);
 	}
 
 	public void removeItem(Barcode barcode) {
