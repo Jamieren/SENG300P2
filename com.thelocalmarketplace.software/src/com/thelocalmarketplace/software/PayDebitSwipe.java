@@ -43,9 +43,8 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 	private boolean paymentGood = false;
 	private Session session;
 	
-	public boolean payByDebit(ICardReader reader) {
+	public boolean payByDebit(){
 		amountDue = Session.getInstance().getAmountDue();
-		System.out.println("Please swipe your card: ");
 		this.plugIn(PowerGrid.instance());
 		this.turnOn();
 		try {
@@ -65,34 +64,14 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 		return paymentGood;
 	}
 	
-	/**private Card.CardSwipeData cardSwipe(Card card) {
-		try {
-			data = card.swipe();
-			System.out.println("Card has been swiped");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return data;
-	}**/
-	
 	private boolean amountPaid(String cardNumber, CardData data) {
 		long holdNumber = 0;
 
 		holdNumber = bank.authorizeHold(cardNumber, amountDue);
-		System.out.println(amountDue);
 
 		if(holdNumber != -1) {
-			System.out.println("Hold authorized. Hold Number: " + holdNumber);
 			paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
 			bank.releaseHold(cardNumber, holdNumber);
-			
-			if(paymentGood) {
-				System.out.println("Success");
-			}else {
-				System.out.println("Failed");
-			}
 		}
 		return paymentGood;
 	}
@@ -132,8 +111,7 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 		Calendar expiry = null;
 		String cardNumber = data.getNumber();
 		String cardholder = data.getCardholder();
-		System.out.println("stopped");
-		String cvv = null;
+		String cvv = "123";
 		expiry = Calendar.getInstance();
 		
 		bank.addCardData(cardNumber, cardholder, expiry, cvv, 50);

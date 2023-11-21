@@ -419,6 +419,9 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("No amount due");
 		}
 	}
+	/**
+	 * 
+	 */
 	
 	public void payViaDebit() {
 		boolean paymentGood = false;
@@ -429,7 +432,7 @@ public class SelfCheckoutStationSoftware {
 		PayDebitSwipe payment = new PayDebitSwipe();
 		
 		if(bronzeCardReader.isPoweredUp()) {
-			paymentGood = payment.payByDebit(bronzeCardReader);
+			paymentGood = payment.payByDebit();
 		}else {
 			System.out.println("Card reader is off");
 			throw new NoPowerException();
