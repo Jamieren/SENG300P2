@@ -1,16 +1,17 @@
-/**
- * @author Akashdeep Grewal 30179657
- * @author Amira Wishah 30182579
- * @author Ananya Jain 30196069
- * @author Danny Ly 30127144
- * @author Hillary Nguyen 30161137
- * @author Johnny Tran 30140472 
- * @author Minori Olguin 3003592
- * @author Rhett Bramfield 30170520
- * @author Wyatt Deichert 30174611
- * @author Adrian Brisebois 30170764
+/*SENG 300 Project Iteration 2
 
-**/
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.assertEquals;
@@ -60,7 +61,7 @@ public class PayWithCoinTest {
 	SelfCheckoutStationSoftware software;
 	Session session;
 	
-	Coin quarter, loonie, toonie, dime, nickel;
+	Coin quarter, loonie, toonie, dime, nickel, nullCoin;
 	
 	
 	@Before
@@ -89,6 +90,7 @@ public class PayWithCoinTest {
 		quarter = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.25"));
 		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
 		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
+		nullCoin = new Coin(null);
 		
 	}
 
@@ -149,7 +151,11 @@ public class PayWithCoinTest {
 	// might put in null pointer test
 	@Test
 	public void nullCoinInputtedAlone() {
-		session.addAmountDue(.75);
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(loonie);
+		coinsList.add(nullCoin);
+		software.payWithCoin(coinsList);
 		
 	}
 	
