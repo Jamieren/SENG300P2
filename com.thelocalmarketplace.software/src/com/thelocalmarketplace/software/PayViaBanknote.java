@@ -20,16 +20,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-
+import com.tdc.banknote.Banknote;
+import com.tdc.banknote.BanknoteDispensationSlot;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 
 public class PayViaBanknote {
 
+    private BanknoteDispensationSlot banknoteDispensationSlot;
+
+    public PayViaBanknote(SelfCheckoutStationBronze selfCheckoutStationBronze, Session session, BanknoteDispensationSlot banknoteDispensationSlot) {
+        this.selfCheckoutStationBronze = selfCheckoutStationBronze;
+        this.session = session;
+        this.banknoteDispensationSlot = banknoteDispensationSlot;
+        this.scanner = new Scanner(System.in); // Initialize the scanner
+    }
+
+    public BigDecimal payViaBanknote(Banknote banknote) {
     private static SelfCheckoutStationBronze selfCheckoutStationBronze;
     private static Session session;
     private static Scanner scanner;
 
     public static void payViaBanknote() {
+
         if (session.getAmountDue() != 0) {
             List<BigDecimal> denoms = Arrays.asList(
                     new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0"));

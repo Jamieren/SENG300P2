@@ -96,7 +96,7 @@ public class TestPayViaBanknote {
 	    session.addAmountDue(15.00);
 
 	    
-	    PayViaBanknote payViaBanknote = new PayViaBanknote(software.getSelfStationBronze(), session);
+	    PayViaBanknote payViaBanknote = new PayViaBanknote(software.getSelfStationBronze(), session, null);
 
 	   
 	    BigDecimal actualChange = payViaBanknote.payViaBanknote(twenty);
@@ -114,7 +114,7 @@ public class TestPayViaBanknote {
 	public void insufficientPayment() {
 	    session.addAmountDue(25.00);
 
-	    PayViaBanknote payViaBanknote = new PayViaBanknote(software.getSelfStationBronze(), session);
+	    PayViaBanknote payViaBanknote = new PayViaBanknote(software.getSelfStationBronze(), session, null);
 
 	    
 	    BigDecimal actualChange = payViaBanknote.payViaBanknote(ten);
