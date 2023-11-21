@@ -1,5 +1,20 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -302,8 +317,8 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
-				sessionSimulation.payWithCoin();
-//				break;
+				payWithCoinControl();
+				//break;
 			}
 			else if (choice == 4) { //Exit
 				System.out.println("Exiting System");
@@ -464,44 +479,95 @@ public class SelfCheckoutStationSoftware {
 		}
 	}
 	
-	// potentially put this in a class of its own
-	public void payWithCoin(Coin...coins) {
-		// this could be anything but we could set it to 1000
-		int coinCapacity = 1000;
+	private static Coin quarter, loonie, toonie, dime, nickel;
 	
-		System.out.print("session amount need to pay:" + session.getAmountDue() + "\n");
-		if(session.getAmountDue() != 0) {
-			ArrayList<BigDecimal> denoms = (ArrayList<BigDecimal>) selfCheckoutStationBronze.coinDenominations;
-					
-			// This is to compare the value we put in to the total amount we get in session
-			for(Coin coin: coins) {
-				if(denoms.contains(coin.getValue())) {
-					bronzeDispenser = new CoinDispenserBronze(coinCapacity);
-					
-					session.subAmountDue(coin.getValue().doubleValue());
-					System.out.print("session get amount after coin insert:" + session.getAmountDue() + "\n");
-					
-					if(session.getAmountDue() == 0) {
-						System.out.println("Fully paid amount");
-						session.getOrderItem().clear();
-					}
-					else if(session.getAmountDue()<0){
-						System.out.println("Amount paid over, change return");
-						session.getOrderItem().clear();
-			
-						double returnChange = -(session.getAmountDue());
-						System.out.print("Change returned: " + returnChange);
-						return;
-					}
-				} 
-				else {
-					System.out.println("Invalid Denomination amount, please try again");
-				}				
-			}
-		} else {
-			System.out.println("No amount due");
-		}
-	}
+	public static void payWithCoinControl() {
+        // turn this into a control method for pay with coin later
+        String coinDenom = "something";
+        ArrayList<Coin> coinsList = new ArrayList<>();;
+        
+        if (session.getAmountDue()<=0) {
+            System.out.println("No amount due");
+        }
+        else {
+        // changes here to input coins:
+            while (!coinDenom.equals("done")) {
+                System.out.print("\nInsert coins (nickel, dime, quarter, loonie, toonie),\npress 'done' to exit: ");
+                coinDenom = scanner.nextLine();
+
+                if (coinDenom.equals("nickel")) {
+                    coinsList.add(nickel);
+                }
+                else if (coinDenom.equals("dime")) {
+                    coinsList.add(dime);
+                }
+                else if (coinDenom.equals("quarter")) {
+                    coinsList.add(quarter);
+                }
+                else if (coinDenom.equals("loonie")) {
+                    coinsList.add(loonie);
+                }
+                else if (coinDenom.equals("toonie")) {
+                    coinsList.add(toonie);
+                }
+                else if (coinDenom.equals("done")) {
+                    break;
+                }
+                else {
+                    System.out.print("\nInvalid coin input");
+                }
+            }
+            sessionSimulation.payWithCoin(coinsList);
+//                break;
+            
+        }
+    }
+    
+    public void payWithCoin(ArrayList<Coin> coins) {
+        // this could be anything but we could set it to 1000
+        int coinCapacity = 1000;
+        
+        //add in denoms itself since wasnt working with other code
+        ArrayList<BigDecimal> denoms = new ArrayList<>();
+        denoms.add(new BigDecimal("0.05"));
+        denoms.add(new BigDecimal("0.10"));
+        denoms.add(new BigDecimal("0.25"));
+        denoms.add(new BigDecimal("1"));
+        denoms.add(new BigDecimal("2"));
+
+//        System.out.print("Session amount need to pay:" + session.getAmountDue() + "\n");
+        if (session.getAmountDue() != 0) {
+        
+//             for(BigDecimal denom : denoms) {
+//                System.out.println("\t" + denom);
+//            }
+            // This is to compare the value we put in to the total amount we get in session
+            for (Coin coin : coins) {
+                if (denoms.contains(coin.getValue())) {
+                    bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+
+                    session.subAmountDue(coin.getValue().doubleValue());
+//                    System.out.print("session get amount after coin insert:" + session.getAmountDue() + "\n");
+
+                    if (session.getAmountDue() == 0) {
+                        System.out.println("Fully paid amount");
+                        session.getOrderItem().clear();
+                    } else if (session.getAmountDue() < 0) {
+                        System.out.println("Amount paid over, change return");
+                        session.getOrderItem().clear();
+
+                        double returnChange = -(session.getAmountDue());
+                        System.out.print("Change returned: " + returnChange);
+                        return;
+                    }
+                } else {
+                    System.out.println("Invalid Denomination amount, please try again");
+                }
+            }
+        } else {
+            System.out.println("No amount due");
+        }
+    }
 	
 	public void payViaDebit() {
 		boolean paymentGood = false;
