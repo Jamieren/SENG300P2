@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.tdc.banknote.Banknote;
+import com.tdc.banknote.BanknoteDispensationSlot;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 
 public class PayViaBanknote {
@@ -12,10 +13,13 @@ public class PayViaBanknote {
     private SelfCheckoutStationBronze selfCheckoutStationBronze;
     private Session session;
     private Scanner scanner;
+    private BanknoteDispensationSlot banknoteDispensationSlot;
 
-    public PayViaBanknote(SelfCheckoutStationBronze selfCheckoutStationBronze, Session session) {
+    public PayViaBanknote(SelfCheckoutStationBronze selfCheckoutStationBronze, Session session, BanknoteDispensationSlot banknoteDispensationSlot) {
         this.selfCheckoutStationBronze = selfCheckoutStationBronze;
         this.session = session;
+        this.banknoteDispensationSlot = banknoteDispensationSlot;
+        this.scanner = new Scanner(System.in); // Initialize the scanner
     }
 
     public BigDecimal payViaBanknote(Banknote banknote) {
@@ -43,6 +47,7 @@ public class PayViaBanknote {
                         if (session.getAmountDue() < 0) {
                             double change = Math.abs(session.getAmountDue());
                             System.out.println("Fully paid amount, change: " + change);
+                            banknoteDispensationSlot.dispense(); // Dispense the change
                             return BigDecimal.valueOf(change);
                         } else {
                             System.out.println("Fully paid amount");
@@ -66,6 +71,7 @@ public class PayViaBanknote {
             if (totalPaid.compareTo(BigDecimal.valueOf(session.getAmountDue())) > 0) {
                 BigDecimal change = totalPaid.subtract(BigDecimal.valueOf(session.getAmountDue()));
                 System.out.println("Change to return: " + change);
+                banknoteDispensationSlot.dispense();
                 return change;
             }
         } else {
@@ -74,5 +80,4 @@ public class PayViaBanknote {
 
         return BigDecimal.ZERO; // Return 0 if no change or if the amount due was already 0
     }
-
 }
