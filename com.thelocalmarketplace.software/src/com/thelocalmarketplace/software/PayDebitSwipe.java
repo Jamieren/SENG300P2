@@ -29,14 +29,15 @@ import powerutility.PowerGrid;
  * @author Minori Olguin 30035923
  * @author Rhett Bramfield 30170520
  * @author Wyatt Deichert 30174611
+ * @author Adrian Brisebois 30170764
  * 
  * Responsible for allowing customer to pay by debit via swipe
  */
 public class PayDebitSwipe extends AbstractCardReader implements CardReaderListener{
 	
-	private Card card; //= new Card("debit", "1234567890123456", "Bob", "123");
+	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
 	private CardReaderListener listener;
-	private CardIssuer bank; // = new CardIssuer("bank", 100);
+	private CardIssuer bank = new CardIssuer("bank", 100);
 	private double amountDue;
 	private CardData data = null;
 	private boolean paymentGood = false;
@@ -45,8 +46,11 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 	public boolean payByDebit(ICardReader reader) {
 		amountDue = Session.getInstance().getAmountDue();
 		System.out.println("Please swipe your card: ");
+		this.plugIn(PowerGrid.instance());
+		this.turnOn();
 		try {
 			data = swipe(card);	
+			theDataFromACardHasBeenRead(data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

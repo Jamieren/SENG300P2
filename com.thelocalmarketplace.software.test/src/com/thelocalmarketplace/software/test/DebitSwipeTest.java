@@ -19,6 +19,21 @@ import com.thelocalmarketplace.software.WeightDiscrepancy;
 
 import powerutility.PowerGrid;
 
+/**
+ * @author Akashdeep Grewal 30179657
+ * @author Amira Wishah 30182579
+ * @author Ananya Jain 30196069
+ * @author Danny Ly 30127144
+ * @author Hillary Nguyen 30161137
+ * @author Johnny Tran 30140472 
+ * @author Minori Olguin 30035923
+ * @author Rhett Bramfield 30170520
+ * @author Wyatt Deichert 30174611
+ * @author Adrian Brisebois 30170764
+ * 
+ * Test class for debit payments by swiping
+ */
+
 public class DebitSwipeTest {
 	private Session session;
 	private SelfCheckoutStationSoftware simulation;
