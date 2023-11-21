@@ -27,26 +27,32 @@ import com.thelocalmarketplace.hardware.external.CardIssuer;
  * 
  * Responsible for allowing customer to pay by debit via swipe
  */
-public class PayDebitSwipe implements CardReaderListener{
+public class PayDebitSwipe extends AbstractCardReader implements CardReaderListener{
 	
 	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
 	private CardReaderListener listener;
 	private CardIssuer bank = new CardIssuer("bank", 100);
 	private double amountDue;
-	private Card.CardSwipeData data = null;
+	private CardData data = null;
 	boolean paymentGood = false;
 	
 	public boolean payByDebit() {
 		amountDue = Session.getInstance().getAmountDue();
 		System.out.println("Please swipe your card: ");
-		cardSwipe(card);
-		if(signatureVerify()){
-			theDataFromACardHasBeenRead(data);
+		try {
+			data = swipe(card);
+			if(signatureVerify()){
+				//theDataFromACardHasBeenRead(data);
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return paymentGood;
 	}
 	
-	private Card.CardSwipeData cardSwipe(Card card) {
+	/**private Card.CardSwipeData cardSwipe(Card card) {
 		try {
 			data = card.swipe();
 			System.out.println("Card has been swiped");
@@ -56,7 +62,7 @@ public class PayDebitSwipe implements CardReaderListener{
 		}
 		
 		return data;
-	}
+	}**/
 	
 	private boolean signatureVerify() {
 		System.out.println("Please sign here: \n");
