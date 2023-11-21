@@ -162,6 +162,8 @@ public class PayWithCoinTest {
 	@Test
 	public void multipleNullCoinsInputted() {
 		
+	}
+		
 	
 	@Test 
 	public void nullCoinInputtedWithValidCoin() {

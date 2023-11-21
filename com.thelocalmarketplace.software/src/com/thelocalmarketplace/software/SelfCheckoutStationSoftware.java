@@ -33,6 +33,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import powerutility.PowerGrid;
 
 /*
@@ -545,8 +546,12 @@ public class SelfCheckoutStationSoftware {
                         System.out.print("Change returned: " + returnChange);
                         return;
                     }
-                } else {
-                    System.out.println("Invalid Denomination amount, please try again");
+                } else if (coin.getValue()== null) {
+                   throw new NullPointerSimulationException();
+                	//
+                }
+                else {
+                	System.out.println("Invalid Denomination amount, please try again");
                 }
             }
         } else {
