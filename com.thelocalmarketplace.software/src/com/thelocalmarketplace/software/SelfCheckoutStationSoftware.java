@@ -217,15 +217,19 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
+<<<<<<< HEAD
 				sessionSimulation.payWithCoin();
 //				break;
 			}
 			else if (choice == 4) { //Exit
 				System.out.println("Exiting System");
+=======
+				sessionSimulation.payViaCoin();
+>>>>>>> PayDebit_hn
 				receiptPrinted = true;
 				System.exit(0);
 			}
-			else if (choice == 4) { //Pay Via Banknnote
+			else if (choice == 4) { //Pay Via Banknote
 				PayViaBanknote.payViaBanknote();
 				receiptPrinted = true;
 				System.exit(0);
@@ -235,12 +239,17 @@ public class SelfCheckoutStationSoftware {
 				receiptPrinted = true;
 				System.exit(0);
 			}
+<<<<<<< HEAD
 			else if (choice == 6) { //Pay Via Credit
 				sessionSimulation.payViaCredit();
 				receiptPrinted = true;
 				System.exit(0);
 			}
 			else if (choice == 7) { //Exit
+=======
+			
+			else if (choice == 6) { //Exit
+>>>>>>> PayDebit_hn
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
@@ -428,10 +437,10 @@ public class SelfCheckoutStationSoftware {
 		payment.payByDebit();
 		if(paymentGood) {
 			System.out.println("Payment successful! Amount Due: 0");
-			//session.printReceipt();
 		}else {
-			System.out.println("Payment was unsuccessful\n");
+			System.out.println("Payment was unsuccessful");
 			System.out.println("Please try again or choose a different payment method\n");
+			session.printMenu();
 		}
 	}
 	
