@@ -152,6 +152,21 @@ public class PayWithCoinTest {
 	}
 	
 	@Test
+	public void moreAmountCoinsInputtedByOneCent() {
+		session.addAmountDue(1.74);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(loonie);
+		software.payWithCoin(coinsList);
+		double expectedChange = (-0.01);
+		double actualChange = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expectedChange, actualChange, smallValue);
+	}
+	
+	@Test
 	public void zeroCoinsInputed() {
 		session.addAmountDue(0.54);
 		ArrayList<Coin> coinsList = new ArrayList<>();
@@ -190,7 +205,4 @@ public class PayWithCoinTest {
 		software.payWithCoin(coinsList);
 		
 	}
-	
-	
-	
 }
