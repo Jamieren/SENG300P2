@@ -1,3 +1,17 @@
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
 package com.thelocalmarketplace.software.test;
 
 /*SENG 300 Project Iteration 2
@@ -40,6 +54,7 @@ import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.Session;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import powerutility.PowerGrid;
 
 /**
@@ -92,6 +107,8 @@ public class PayWithCoinTest {
 		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
 		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
 		
+		
+		
 	}
 
 
@@ -108,6 +125,32 @@ public class PayWithCoinTest {
 		double smallValue = 0.0001;
 	    assertEquals(expected, actual, smallValue);
 		
+	}
+	
+	@Test 
+	public void testWhenNoAmountDue() {
+		session.addAmountDue(0);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(toonie);
+		coinsList.add(loonie);
+		software.payWithCoin(coinsList);
+		double expected = 0.0;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+		assertEquals(expected, actual, smallValue);
+	}
+	
+	@Test
+	public void testWhenInvalidDenominationInputted() {
+		session.addAmountDue(1.80);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		Coin invalidDenomTestCoin = new Coin(Currency.getInstance("CAD"), new BigDecimal ("0.16"));
+		coinsList.add(invalidDenomTestCoin);
+		software.payWithCoin(coinsList);
+		double expected = 1.80;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+		assertEquals(expected, actual, smallValue);
 	}
 	
 	@Test
@@ -138,6 +181,35 @@ public class PayWithCoinTest {
 	}
 	
 	@Test
+	public void lessAmountCoinsInputtedByOneCent() {
+		session.addAmountDue(0.76);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		software.payWithCoin(coinsList);
+		double expected = 0.01;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+	}
+	
+	@Test
+	public void moreAmountCoinsInputtedByOneCent() {
+		session.addAmountDue(1.74);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(loonie);
+		software.payWithCoin(coinsList);
+		double expectedChange = (-0.01);
+		double actualChange = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expectedChange, actualChange, smallValue);
+	}
+	
+	@Test
 	public void zeroCoinsInputed() {
 		session.addAmountDue(0.54);
 		ArrayList<Coin> coinsList = new ArrayList<>();
@@ -148,7 +220,35 @@ public class PayWithCoinTest {
 	    assertEquals(expected, actual, smallValue);
 	}
 	
-	// might put in null pointer test
-
+	// tests a null coin when inputted alone
+	@Test ( expected = NullPointerException.class)
+	public void nullCoinInputtedAlone() {
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(null);
+		software.payWithCoin(coinsList);	
+	}
 	
+	@Test (expected = NullPointerException.class)
+	public void multipleNullCoinsInputted() {
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(null);
+		coinsList.add(null);
+		software.payWithCoin(coinsList);
+	}
+		
+	
+	@Test (expected = NullPointerException.class)
+	public void nullCoinInputtedWithValidCoin() {
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(loonie);
+		coinsList.add(null);
+		software.payWithCoin(coinsList);
+		
+	}
 }
+	
+	
+

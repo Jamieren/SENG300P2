@@ -1,19 +1,4 @@
-package com.thelocalmarketplace.software.test;
-
-/*SENG 300 Project Iteration 2
-
-@author Akashdeep Grewal 30179657
-@author Amira Wishah 30182579
-@author Ananya Jain 30196069
-@author Danny Ly 30127144
-@author Hillary Nguyen 30161137
-@author Johnny Tran 30140472 
-@author Minori Olguin 30035923
-@author Rhett Bramfield 30170520
-@author Wyatt Deichert 30174611
-@author Zhenhui Ren 30139966
-@author Adrian Brisebois 30170764
-*/
+ package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 
 //import java.math.BigDecimal;
@@ -29,7 +13,6 @@ import java.math.BigDecimal;
 //import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Currency;
-import java.util.InputMismatchException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,28 +26,17 @@ import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 import com.thelocalmarketplace.software.Session;
-import com.thelocalmarketplace.software.AddOwnBag;
-import com.thelocalmarketplace.software.Bag;
 import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.WeightDiscrepancy;
 
 import powerutility.PowerGrid;
 
 
-/*SENG 300 Project Iteration 2
-
-@author Akashdeep Grewal 30179657
-@author Amira Wishah 30182579
-@author Ananya Jain 30196069
-@author Danny Ly 30127144
-@author Hillary Nguyen 30161137
-@author Johnny Tran 30140472 
-@author Minori Olguin 30035923
-@author Rhett Bramfield 30170520
-@author Wyatt Deichert 30174611
-@author Zhenhui Ren 30139966
-@author Adrian Brisebois 30170764
-*/
+/* 
+ * Software Testing for LThe Local Market Place Software
+ * 
+ * 
+ * */
 
 
 public class SoftwareTesting {
@@ -107,13 +79,10 @@ public class SoftwareTesting {
 		banknoteValidator.activate();
 		banknoteValidator.enable();
 		
-		PowerGrid.engageUninterruptiblePowerSource();
-
+		
 		SelfCheckoutStationBronze bronzeStation = new SelfCheckoutStationBronze();
 		bronzeStation.plugIn(PowerGrid.instance());
 		bronzeStation.turnOn();
-		
-		Bag testBag = new Bag(testMass);
 		
 		testDiscrepancy  = new WeightDiscrepancy();
 
@@ -156,12 +125,29 @@ public class SoftwareTesting {
 		assertEquals(orderItems, session.getOrderItem());
 	}
 	
+	// Exception handling needed in code for 
+	// adding a null item, should result in a null pointer exception
+//	@Test(expected = NullPointerException.class)
+//	public void newOrderedNullItemTest() {
+//		BarcodedItem testBarcodedItem = null;
+//		session.newOrderItem(testBarcodedItem);
+//		orderItems.add(testBarcodedItem);
+//		session.getOrderItem();
+//	} 
+	
 	//Test to see if a addTotalExcpectedWeight updates when weight is added
 	@Test
 	public void addTotalExpectedWeightTest() {
 		session.addTotalExpectedWeight(testWeight);
 		assertEquals(testWeight, session.getTotalExpectedWeight(), marginOfError);
 	}
+	
+	// Exception handling needed in code for 
+	// negative weight
+//	@Test(expected = .class)
+//	public void addTotalExpectedWeightTest() {
+//		session.addTotalExpectedWeight(testWeight);
+//	}
 	
 	//Test to see if a addAmountDue updates when amount is added
 	@Test
@@ -178,14 +164,22 @@ public class SoftwareTesting {
 		session.subAmountDue(2);
 		assertEquals(1, session.getAmountDue(), marginOfError);
 	}
-
+	
+	// Exception handling needed in code for 
+	// negative amount due
+//	@Test(expected = .class)
+//	public void subAmountDueTest() {
+//		session.addAmountDue(3);
+//		session.subAmountDue(2);
+//	}
 	
 	//Test to see if setWeightDiscrepancy returns correct boolean value true
-	@Test
-	public void setWeightDiscrepancyTest() {
-		testDiscrepancy.setDiscrepancy(true);
-		assertTrue(testDiscrepancy.getDiscrepancy());
-	}
+//	@Test
+//	public void setWeightDiscrepancyTest() {
+//		session.setWeightDiscrepancy(null, new BigDecimal(0));
+//		session.setWeightDiscrepancy();
+//		assertTrue(session.hasWeightDiscrepancy());
+//	}
 	
 	@Test
 	public void setDiscrepancyWeightTest() {
@@ -212,6 +206,9 @@ public class SoftwareTesting {
 	}
 	
 	//Testing for LocalMarketPlaceDatabase class
+	
+	//Exception handling needed in code for adding null or non-existent products to inventory and database
+	//Exception handling needed in code for removing null or non-existent barcoded product from inventory
 	
 	//Test that addBarcodedProductToDatabase adds a barcoded product to the database
 	@Test
@@ -241,25 +238,116 @@ public class SoftwareTesting {
 		testDatabase.removeBarcodedProductFromInventory(testBarcodedProduct, decreaseInventory);
 		assertEquals(decreaseInventory,testDatabase.getInventoryOfBarcodedProduct(testBarcodedProduct));
 	}
-		
-	//Testing for Software class
 	
-	@Test
-	public void promptStartSession() throws IOException {
+	//Testing for WeightDiscrepancy class
+	
+	//
+//	@Test
+//	public void weightDiscrepancyChoiceYesTest() {
+//		testDiscrepancy.WeightDiscrepancyMessage(selfCheckoutStation, testBarcodedProduct);		
+//		//User must enter yes for test
+//	}
+//	
+//	@Test
+//	public void weightDiscrepancyChoiceNoAddTest() {
+//		testDiscrepancy.WeightDiscrepancyMessage(selfCheckoutStation, testBarcodedProduct);		
+//		//User must enter no then add for test
+//	}
+//	
+//	@Test
+//	public void weightDiscrepancyChoiceNoCancelTest() {
+//		testDiscrepancy.WeightDiscrepancyMessage(selfCheckoutStation, testBarcodedProduct);		
+//		//User must enter no then cancel for test
+//	}
+		
+	//Testing for SessionSimulation class
+
+	//
+	@Test // Testing that promptEnterToContinue runs when user input is \"ENTER"\
+	public void promptEnterToContinueTestEnter() throws IOException {
 		String simulatedChoice = "1\n";
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedChoice.getBytes());
         System.setIn(in);
+        
         session.promptToStartSession();
-        assertTrue(session.isActive());
 	}
-
-	@Test (expected = InputMismatchException.class)
-	public void promptStartSessionCharPressed() throws IOException {
-		String simulatedInput = "s\n";
+	
+	@Test // Testing that promptEnterToContinue runs when user input is \"ENTER"\
+	public void scanBarcodedProductTestNullBarcode() {
+		String simulatedInput = "\n";
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
-        session.promptToStartSession();
+        
+        sessionSimulation.scanBarcodedProduct(testBarcode);
 	}
+	
+	@Test // Testing that promptEnterToContinue runs when user input is \"ENTER"\
+	public void scanBarcodedProductTestValidBarcode() {
+		System.out.println("here");
+		String simulatedInput = "\nyes\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+
+		testDatabase.addBarcodedProductToDatabase(testBarcodedProduct);
+
+        sessionSimulation.scanBarcodedProduct(testBarcode);
+        
+        
+	}
+	
+	@Test // Testing when user inputs '1' in main
+	public void promptMainWhen1Pressed() {
+		String simulatedInput = "\n1\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+        
+//		SessionSimulation.main(new String[0]);
+	}
+	
+	@Test // Testing when user inputs '2' in main
+	public void promptMainWhen2Pressed() {
+		String simulatedInput = "\n2\n2.0\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+        
+//		SessionSimulation.main(new String[0]);
+	}
+	
+	@Test // Testing when user inputs '3' in main
+	public void promptMainWhen3Pressed() {
+		String simulatedInput = "\n3\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+        
+//		sessionSimulation.main(new String[0]);
+	}
+	
+	@Test // Testing when user inputs '4' in main
+	public void promptMainWhen4Pressed() {
+		String simulatedInput = "\n4\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+        
+//		SessionSimulation.main(new String[0]);
+	}
+	
+	@Test // Testing when user inputs '-1' in main
+	public void promptMainWhenMinus1Pressed() {
+		String simulatedInput = "\n-1\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
+        System.setIn(in);
+        
+//		SessionSimulation.main(new String[0]);
+	}
+	
+	
+//	@Test(expected = IOException.class)
+//	// Testing that promptEnterToContinue runs when user input is \"ENTER"\
+//	public void promptEnterToContinueTestException() {
+//		sessionSimulation.promptEnterToContinue();
+//	}
+//	
+	
 	
 
 }

@@ -11,4 +11,3 @@ SENG 300 Project Iteration 2<br>
  @author Rhett Bramfield 30170520<br> 
  @author Wyatt Deichert 30174611<br> 
  @author Zhenhui Ren 30139966<br>
- @author Adrian Brisebois 30170764<br>
