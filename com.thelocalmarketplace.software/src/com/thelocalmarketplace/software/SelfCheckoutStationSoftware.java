@@ -81,8 +81,6 @@ public class SelfCheckoutStationSoftware {
 	private static Coin insertedCoin;
 	
 	private static CoinDispenserBronze bronzeDispenser;
-	
-	private static HandheldBarcodeScanner handheldScanner;
 
 	private static CoinDispenserGold goldDispenser;
 	
@@ -98,13 +96,15 @@ public class SelfCheckoutStationSoftware {
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
+
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
 		
 		scanner = new Scanner(System.in);	
 		
-		SelfCheckoutStationSoftware.handheldScanner = new HandheldBarcodeScanner(scanner); // Pass the existing scanner object
+		SelfCheckoutStationSoftware.bronzeHandheldScanner = new BarcodeScannerBronze(); 
+		SelfCheckoutStationSoftware.bronzeMainScanner = new BarcodeScannerBronze();
 			
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
@@ -268,10 +268,37 @@ public class SelfCheckoutStationSoftware {
 				
 			}
 			else if (choice == 2) { //Add Item
-				// Simulate the scanning process and get the scanned barcode
-			    Barcode scannedBarcode = sessionSimulation.simulateScanningProcess();
-			    // Pass the scanned barcode to the scanBarcodedProduct method
-			    sessionSimulation.scanBarcodedProduct(scannedBarcode);
+				//clients choose how they want to add item 
+	            System.out.println("Select Scanner:");
+	            System.out.println("1. Handheld Scanner");
+	            System.out.println("2. Main Scanner");
+	            System.out.print("Your choice: ");
+	            int scannerChoice = scanner.nextInt();
+
+	            if (scannerChoice == 1) {
+	                // Process item with handheld scanner
+	                sessionSimulation.addItemWithHandheldScanner();
+	                
+	            } else if (scannerChoice == 2) {
+	                // Process item with main scanner
+	            	
+			System.out.print("Enter barcode to add: ");
+			BigDecimal barcodeInput = scanner.nextBigDecimal();
+			
+			String barcodeInputString = barcodeInput.toString();
+
+			int i = 0;
+			Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+			for(char c : barcodeInputString.toCharArray()) {
+				barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+				i++;
+			}
+			Barcode barcode = new Barcode(barcodeNumeral);
+			sessionSimulation.scanBarcodedProduct(barcode);	
+			
+		} else {
+	        System.out.println("Invalid scanner choice.");
+		}
 				
 			}
 			else if (choice == 3) { //Pay Via Coin
@@ -290,11 +317,15 @@ public class SelfCheckoutStationSoftware {
 			}
 			else if (choice == 5) { //Pay Via Debit
 				sessionSimulation.payViaDebit();
-        receiptPrinted = true;
+				receiptPrinted = true;
 				System.exit(0);
 			}
-			
-			else if (choice == 6) { //Exit
+			else if (choice == 6) { //Pay Via Credit
+				sessionSimulation.payViaCredit();
+				receiptPrinted = true;
+				System.exit(0);
+			}
+			else if (choice == 7) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
@@ -309,6 +340,29 @@ public class SelfCheckoutStationSoftware {
 	}
 	
 
+	public void addItemWithHandheldScanner() {
+		
+		//sicne there's no actual product is scanned, we are runing the simulaiton
+		
+	    System.out.println("Please enter the barcode number with handheld scanner");
+	    
+		BigDecimal barcodeInput = scanner.nextBigDecimal();
+		
+		String barcodeInputString = barcodeInput.toString();
+
+		int i = 0;
+		Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+		for(char c : barcodeInputString.toCharArray()) {
+			barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+			i++;
+		}
+		Barcode barcode = new Barcode(barcodeNumeral);
+		sessionSimulation.scanBarcodedProduct(barcode);	
+
+	   
+	    // Now process this barcode as if it was scanned
+	    scanBarcodedProduct(barcode);
+	}
 
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
@@ -337,28 +391,9 @@ public class SelfCheckoutStationSoftware {
 		}		
 	}
 	
-	public Barcode simulateScanningProcess() {
-        System.out.println("Please scan an item using either the built-in scanner or the handheld scanner.");
-
-        // This is a placeholder for the actual scanning process.
- 
-        System.out.print("Enter the barcode scanned by either scanner: ");
-        BigDecimal barcodeInput = scanner.nextBigDecimal();
-        scanner.nextLine(); // To consume the rest of the line
-
-        String barcodeInputString = barcodeInput.toString();
-        Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
-        int i = 0;
-        for (char c : barcodeInputString.toCharArray()) {
-            barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
-            i++;
-        }
-
-		return new Barcode(barcodeNumeral);
-    }
  
 	public void scanBarcodedProduct(Barcode barcode) {
-		
+	
 		//3. Determines the characteristics (weight and cost) of the product associated with the barcode.
 		BarcodedProduct product = database.getBarcodedProductFromDatabase(barcode);
 		if(product != null) {
@@ -483,6 +518,25 @@ public class SelfCheckoutStationSoftware {
 			System.out.println("Please try again or choose a different payment method\n");
 		}
 	}
+	
+	public void payViaCredit() {
+		if(session.getAmountDue() == 0) {
+			System.out.println("Fully paid amount");
+		}
+		else {
+			PayViaCredit payment = new PayViaCredit();
+			Boolean res = payment.CreditSwipe(database);
+			if(res) {
+				System.out.println("Payment successful! Amount Due: 0");
+			}
+			else {
+				System.out.println("Payment was unsuccessful\n");
+				System.out.println("Please try again or choose a different payment method\n");
+				}
+		}
+		
+	}
+	
 	
 	public void handleBulkyItem(BarcodedProduct toBeExempted) { 
 		Double productWeight = toBeExempted.getExpectedWeight();
