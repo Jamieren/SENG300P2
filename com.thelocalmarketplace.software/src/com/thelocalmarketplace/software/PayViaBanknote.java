@@ -1,18 +1,31 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-
 import com.tdc.banknote.Banknote;
 import com.tdc.banknote.BanknoteDispensationSlot;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 
 public class PayViaBanknote {
 
-    private SelfCheckoutStationBronze selfCheckoutStationBronze;
-    private Session session;
-    private Scanner scanner;
     private BanknoteDispensationSlot banknoteDispensationSlot;
 
     public PayViaBanknote(SelfCheckoutStationBronze selfCheckoutStationBronze, Session session, BanknoteDispensationSlot banknoteDispensationSlot) {
@@ -23,8 +36,14 @@ public class PayViaBanknote {
     }
 
     public BigDecimal payViaBanknote(Banknote banknote) {
+    private static SelfCheckoutStationBronze selfCheckoutStationBronze;
+    private static Session session;
+    private static Scanner scanner;
+
+    public static void payViaBanknote() {
+
         if (session.getAmountDue() != 0) {
-            List<BigDecimal> denoms = List.of(
+            List<BigDecimal> denoms = Arrays.asList(
                     new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0"));
 
             System.out.println("Choose denomination of banknote being inserted:");
@@ -47,13 +66,11 @@ public class PayViaBanknote {
                         if (session.getAmountDue() < 0) {
                             double change = Math.abs(session.getAmountDue());
                             System.out.println("Fully paid amount, change: " + change);
-                            banknoteDispensationSlot.dispense(); // Dispense the change
-                            return BigDecimal.valueOf(change);
                         } else {
                             System.out.println("Fully paid amount");
-                            session.getOrderItem().clear();
-                            return BigDecimal.ZERO;
                         }
+                        session.getOrderItem().clear();
+                        return;
                     }
                     System.out.println("Amount due:" + session.getAmountDue());
                 } else {
@@ -71,13 +88,9 @@ public class PayViaBanknote {
             if (totalPaid.compareTo(BigDecimal.valueOf(session.getAmountDue())) > 0) {
                 BigDecimal change = totalPaid.subtract(BigDecimal.valueOf(session.getAmountDue()));
                 System.out.println("Change to return: " + change);
-                banknoteDispensationSlot.dispense();
-                return change;
             }
         } else {
             System.out.println("No amount due");
         }
-
-        return BigDecimal.ZERO; // Return 0 if no change or if the amount due was already 0
     }
 }

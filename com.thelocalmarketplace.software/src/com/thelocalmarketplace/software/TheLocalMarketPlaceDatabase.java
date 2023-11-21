@@ -1,12 +1,30 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.jjjwelectronics.Numeral;
+import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.scanner.Barcode;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.Product;
+import com.thelocalmarketplace.hardware.external.CardIssuer;
 /* 
  * Simple database for the Local Market Place 
  * */
@@ -17,13 +35,18 @@ public class TheLocalMarketPlaceDatabase {
 
 	private final Map<Barcode, BarcodedProduct> BARCODED_PRODUCT_DATABASE;
 	private final Map<Product, Integer> INVENTORY;
+	private final Map<String, Card> CARDS;
+	private final Map<String, CardIssuer> BANKS;
+	
 
 	public TheLocalMarketPlaceDatabase() {
 		BARCODED_PRODUCT_DATABASE = new HashMap<>();
 		INVENTORY = new HashMap<>();
+		CARDS = new HashMap<>();
+		BANKS = new HashMap<>();
 		populateDatabase();
 	}
-	
+	 
 	private void populateDatabase() {
 
 		Barcode milkBarcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two, Numeral.three, Numeral.four, Numeral.five});
@@ -49,6 +72,14 @@ public class TheLocalMarketPlaceDatabase {
 		addBarcodedProductToInventory(bread, 35);
 		addBarcodedProductToInventory(eggs, 44);
 		addBarcodedProductToInventory(canOfBeans, 75);
+		
+		CARDS.put("2648264926081648", new Card("Visa", "2648264926081648", "John Smith", "123"));
+		CardIssuer visa = new CardIssuer("Visa", 5);
+		Calendar c = Calendar.getInstance();
+		c.set(2026, 5, 20);
+		visa.addCardData("2648264926081648", "John Smith", c , "123", 1000.00);
+		BANKS.put("Visa",visa);
+		
 	}
 
 //	public static TheLocalMarketPlaceDatabase getInstance() {
@@ -80,6 +111,18 @@ public class TheLocalMarketPlaceDatabase {
 
 	public int getInventoryOfBarcodedProduct(BarcodedProduct barcodedProduct) {
 		return INVENTORY.get(barcodedProduct);
+	}
+	
+	public Card getCard(String cardNum) {
+		return CARDS.get(cardNum);
+	}
+	
+	public CardIssuer getBank(String bankName) {
+		return BANKS.get(bankName);
+	}
+	
+	public boolean isCard(String cardNum) {
+		return CARDS.containsKey(cardNum);
 	}
 
 }

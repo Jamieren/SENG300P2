@@ -1,5 +1,20 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
 import java.io.IOException;
 
 import java.math.BigDecimal;
@@ -13,19 +28,20 @@ import com.jjjwelectronics.scanner.BarcodedItem;
 
 public class Session {
 
-	private static Session instance = null;
+	private static Session instance = null; 
 	private boolean isActive = false;
 	private static ArrayList<BarcodedItem> orderItems;
 	private static double totalExpectedWeight;
 	private static double amountDue;
 	private static WeightDiscrepancy weightDiscrepancy;
 	
-	private Session() {
+	// had to make this public
+	public Session() {
 		//Instantiate data
 		orderItems = new ArrayList<BarcodedItem>();
 		totalExpectedWeight = 0;
 		amountDue = 0;
-		weightDiscrepancy = null;
+		weightDiscrepancy = new WeightDiscrepancy();
 	}
 	
 	public static Session getInstance() {
@@ -54,9 +70,7 @@ public class Session {
     }
 	
     public ArrayList<BarcodedItem> getOrderItem() {
-    	if(orderItems == null) {
-    		throw new NullPointerException();
-    	}
+    	if(orderItems == null) {throw new NullPointerException(); }
     	return orderItems;
     }
     
@@ -70,7 +84,8 @@ public class Session {
     
     public BarcodedItem findItem(Barcode barcode) {
     	for(BarcodedItem item: orderItems) {
-    		if(item.getBarcode() == barcode) {
+    		
+    		if(item.getBarcode().toString().equals(barcode.toString())) {
     			return item;
     		}
     	}
@@ -110,6 +125,7 @@ public class Session {
 		System.out.println("Enter \"1\" to activate a session: ");
 		choice = scanner.nextInt();
 		if (choice == 1) {
+
 			activate();
 		}
 		else {
@@ -148,10 +164,11 @@ public class Session {
 				+ "\t 1. Activate Session\n"
 				+ "\t 2. Add Item\n"
 				+ "\t 3. Pay via Coin\n"
-
 				+ "\t 4. Pay via Banknote\n"
-				+ "\t 5. Exit\n"
-
+				+ "\t 5. Pay via Debit\n"
+				+ "\t 6. Pay via Credit\n"
+				+ "\t 7. Remove an Item\n"
+				+ "\t 8. Exit\n"
 				+ "Choice: ");
 	}
          
@@ -166,4 +183,5 @@ public class Session {
 				 + "\t4. Exit\n"
 				 + "Choice: ");
     }
+
 }

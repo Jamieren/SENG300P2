@@ -103,18 +103,18 @@ public class Mass {
 	 * comparisons is: <code>(x.compareTo(y) <i>&lt;op&gt;</i> 0)</code>, where
 	 * <code><i>&lt;op&gt;</i></code> is one of the six comparison operators.
 	 * 
-	 * @param other
+	 * @param zero2
 	 *            The other mass to which this one is to be compared.
 	 * @return -1, 0 or 1 as this Mass is numerically less than, equal to, or
 	 *             greater than <code>other</code>.
 	 * @throws NullPointerSimulationException
 	 *             If <code>other</code> is null.
 	 */
-	public int compareTo(Mass other) {
-		if(other == null)
+	public int compareTo(Mass zero2) {
+		if(zero2 == null)
 			throw new NullPointerSimulationException("The mass cannot be non-existent.");
 
-		return value.compareTo(other.value);
+		return value.compareTo(zero2.value);
 	}
 
 	/**
