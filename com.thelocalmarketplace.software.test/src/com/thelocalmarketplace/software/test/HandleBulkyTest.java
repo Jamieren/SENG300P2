@@ -1,5 +1,6 @@
-/*SENG 300 Project Iteration 2
+package com.thelocalmarketplace.software.test;
 
+/*SENG 300 Project Iteration 2
 
 @author Akashdeep Grewal 30179657
 @author Amira Wishah 30182579
@@ -11,10 +12,9 @@
 @author Rhett Bramfield 30170520
 @author Wyatt Deichert 30174611
 @author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
 */
-
-package com.thelocalmarketplace.software.test;
-
+	
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
