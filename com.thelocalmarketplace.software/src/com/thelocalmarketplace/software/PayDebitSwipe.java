@@ -11,10 +11,27 @@ import com.jjjwelectronics.card.AbstractCardReader;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
 import com.jjjwelectronics.card.Card.CardSwipeData;
+import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderListener;
+import com.jjjwelectronics.card.ICardReader;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
+import powerutility.NoPowerException;
+import powerutility.PowerGrid;
+
 /**
+<<<<<<< HEAD
+ * @author Akashdeep Grewal 30179657
+ * @author Amira Wishah 30182579
+ * @author Ananya Jain 30196069
+ * @author Danny Ly 30127144
+ * @author Hillary Nguyen 30161137
+ * @author Johnny Tran 30140472 
+ * @author Minori Olguin 30035923
+ * @author Rhett Bramfield 30170520
+ * @author Wyatt Deichert 30174611
+ * @author Adrian Brisebois 30170764
+=======
 SENG 300 Project Iteration 2
 
 @author Akashdeep Grewal 30179657
@@ -28,6 +45,7 @@ SENG 300 Project Iteration 2
 @author Wyatt Deichert 30174611
 @author Zhenhui Ren 30139966
 @author Adrian Brisebois 30170764
+>>>>>>> main
  * 
  * Responsible for allowing customer to pay by debit via swipe
  */
@@ -37,59 +55,40 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
 	private CardReaderListener listener;
 	private CardIssuer bank = new CardIssuer("bank", 100);
+
 	private double amountDue;
 	private CardData data = null;
-	boolean paymentGood = false;
+	private boolean paymentGood = false;
 	
-	public boolean payByDebit() {
+	public boolean payByDebit(){
 		amountDue = Session.getInstance().getAmountDue();
-		System.out.println("Please swipe your card: ");
+		this.plugIn(PowerGrid.instance());
+		this.turnOn();
 		try {
-			data = swipe(card);
-			if(signatureVerify()){
-				//theDataFromACardHasBeenRead(data);
-			}
-			
+			data = swipe(card);	
+			theDataFromACardHasBeenRead(data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return paymentGood;
-	}
-	
-	/**private Card.CardSwipeData cardSwipe(Card card) {
-		try {
-			data = card.swipe();
-			System.out.println("Card has been swiped");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			paymentGood = false;
+			return paymentGood;
+		} catch(NoPowerException e) {
+			System.out.println("Card reader has no power");
+			paymentGood = false;
+			return paymentGood;
 		}
 		
-		return data;
-	}**/
-	
-	private boolean signatureVerify() {
-		System.out.println("Please sign here: \n");
-		return true;
+		return paymentGood;
 	}
 	
 	private boolean amountPaid(String cardNumber, CardData data) {
 		long holdNumber = 0;
 
 		holdNumber = bank.authorizeHold(cardNumber, amountDue);
-		System.out.println(amountDue);
 
 		if(holdNumber != -1) {
-			System.out.println("Hold authorized. Hold Number: " + holdNumber);
 			paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
 			bank.releaseHold(cardNumber, holdNumber);
-			
-			if(paymentGood) {
-				System.out.println("Success");
-			}else {
-				System.out.println("Failed");
-			}
 		}
 		return paymentGood;
 	}
@@ -109,7 +108,7 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 	@Override
 	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
 		// TODO Auto-generated method stub
-		
+		 
 	}
 
 	@Override
@@ -128,11 +127,9 @@ public class PayDebitSwipe extends AbstractCardReader implements CardReaderListe
 	public void theDataFromACardHasBeenRead(CardData data) {
 		Calendar expiry = null;
 		String cardNumber = data.getNumber();
-		String cardType = data.getType();
 		String cardholder = data.getCardholder();
-		System.out.println("stopped");
-		String cvv = null;
-		expiry = expiry.getInstance();
+		String cvv = "123";
+		expiry = Calendar.getInstance();
 		
 		bank.addCardData(cardNumber, cardholder, expiry, cvv, 50);
 		amountPaid(cardNumber, data);

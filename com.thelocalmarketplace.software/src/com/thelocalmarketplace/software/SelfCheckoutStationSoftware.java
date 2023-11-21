@@ -25,6 +25,7 @@ import java.util.Scanner;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderGold;
 import com.jjjwelectronics.printer.ReceiptPrinterBronze;
 import com.jjjwelectronics.scale.ElectronicScaleBronze;
@@ -47,6 +48,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
+import powerutility.NoPowerException;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import powerutility.PowerGrid;
 
@@ -85,7 +87,7 @@ public class SelfCheckoutStationSoftware {
 
 	private static BarcodeScannerBronze bronzeHandheldScanner;
 	
-	private static CardReaderGold goldCardReader;
+	private static CardReaderBronze bronzeCardReader;
 
 	private static ReceiptPrinterBronze bronzePrinter;
 	
@@ -276,7 +278,7 @@ public class SelfCheckoutStationSoftware {
 					else {
 						System.out.print("\n============================\n"
 								 + "Invalid selection, please try again.\n");
-						session.weightDiscrepancyMessage();
+						session.weightDiscrepancyMessage(); 
 						weightChoice = scanner.nextInt();
 					}
 				}
@@ -597,8 +599,19 @@ public class SelfCheckoutStationSoftware {
 	
 	public void payViaDebit() {
 		boolean paymentGood = false;
+		SelfCheckoutStationSoftware.bronzeCardReader = new CardReaderBronze();
+		SelfCheckoutStationSoftware.bronzeCardReader.plugIn(PowerGrid.instance());
+		SelfCheckoutStationSoftware.bronzeCardReader.turnOn();
+		
 		PayDebitSwipe payment = new PayDebitSwipe();
-		payment.payByDebit();
+		
+		if(bronzeCardReader.isPoweredUp()) {
+			paymentGood = payment.payByDebit();
+		}else {
+			System.out.println("Card reader is off");
+			throw new NoPowerException();
+		}
+		
 		if(paymentGood) {
 			System.out.println("Payment successful! Amount Due: 0");
 		}else {

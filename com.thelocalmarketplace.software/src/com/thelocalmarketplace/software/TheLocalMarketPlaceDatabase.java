@@ -46,7 +46,7 @@ public class TheLocalMarketPlaceDatabase {
 		BANKS = new HashMap<>();
 		populateDatabase();
 	}
-	
+	 
 	private void populateDatabase() {
 
 		Barcode milkBarcode = new Barcode(new Numeral[] {Numeral.one, Numeral.two, Numeral.three, Numeral.four, Numeral.five});
