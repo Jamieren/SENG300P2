@@ -107,6 +107,8 @@ public class PayWithCoinTest {
 		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
 		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
 		
+		
+		
 	}
 
 
@@ -123,6 +125,32 @@ public class PayWithCoinTest {
 		double smallValue = 0.0001;
 	    assertEquals(expected, actual, smallValue);
 		
+	}
+	
+	@Test 
+	public void testWhenNoAmountDue() {
+		session.addAmountDue(0);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(toonie);
+		coinsList.add(loonie);
+		software.payWithCoin(coinsList);
+		double expected = 0.0;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+		assertEquals(expected, actual, smallValue);
+	}
+	
+	@Test
+	public void testWhenInvalidDenominationInputted() {
+		session.addAmountDue(1.80);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		Coin invalidDenomTestCoin = new Coin(Currency.getInstance("CAD"), new BigDecimal ("0.16"));
+		coinsList.add(invalidDenomTestCoin);
+		software.payWithCoin(coinsList);
+		double expected = 1.80;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+		assertEquals(expected, actual, smallValue);
 	}
 	
 	@Test
@@ -211,7 +239,7 @@ public class PayWithCoinTest {
 	}
 		
 	
-	@Test ( expected = NullPointerException.class)
+	@Test (expected = NullPointerException.class)
 	public void nullCoinInputtedWithValidCoin() {
 		session.addAmountDue(1.50);
 		ArrayList<Coin> coinsList = new ArrayList<>();
@@ -221,3 +249,6 @@ public class PayWithCoinTest {
 		
 	}
 }
+	
+	
+
