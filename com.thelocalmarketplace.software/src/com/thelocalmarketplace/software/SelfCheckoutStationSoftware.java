@@ -32,6 +32,7 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import powerutility.PowerGrid;
 
 /*
@@ -83,21 +84,19 @@ public class SelfCheckoutStationSoftware {
 
 	private static CoinDispenserGold goldDispenser;
 	
+	private final static String YES = "YES";
 	
-	
+	private final static String NO = "NO";
 
-	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0")};
+	private BigDecimal[] banknoteDenominations = new BigDecimal[] {new BigDecimal("5"), new BigDecimal("10"), new BigDecimal("20")};
 	private BigDecimal[] coinDenominations = new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")};
 	private Currency currency = Currency.getInstance("CAD");
 
-	
-
 //	private int banknoteStorageUnitCapacity = 10;
-
 
 	BanknoteValidator banknoteValidator = new BanknoteValidator(currency, banknoteDenominations);
 
-	
+
 	public static void main(String[] args) {
 
 		sessionSimulation = new SelfCheckoutStationSoftware();
@@ -108,8 +107,6 @@ public class SelfCheckoutStationSoftware {
 		SelfCheckoutStationSoftware.bronzeMainScanner = new BarcodeScannerBronze();
 			
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
-
-		
 
 //		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
 //		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
@@ -136,12 +133,100 @@ public class SelfCheckoutStationSoftware {
 				session.promptToStartSession();
 			} catch (InputMismatchException | IOException e) {
 				System.out.println("Invalid entry, error occured. Please try again.\n");
-
-//				e.printStackTrace();
-
 			}
 		}
 
+		//Check if the customer has their own bags
+		
+		boolean waitingForValidInput = true;
+		String addBagChoice = null;
+		String addBagToBaggingArea = null;
+		AddOwnBag addBag = new AddOwnBag();
+		Bag bag;
+		Mass bagMass = new Mass(0.0);
+		
+		while (waitingForValidInput) {
+			System.out.println("\nWould you like to use your own bags? Enter Yes or No: \n");
+			try {
+				addBagChoice = scanner.nextLine().toUpperCase();
+				if (!addBagChoice.equals(YES) && !addBagChoice.equals(NO)) {
+					System.out.println("Please try again or enter No to cancel.\n");
+				}
+			}
+			catch (InputMismatchException e) {
+				System.out.println("Invalid entry, error occured. Please try again or enter No to cancel.\n");
+			}
+			if (addBagChoice.equals(YES)) { waitingForValidInput = false; }
+			else if (addBagChoice.equals(NO)) { waitingForValidInput = false; }
+			else { waitingForValidInput = true; }
+		}	
+		
+		waitingForValidInput = true;
+		while (waitingForValidInput == true) {
+			System.out.println("\nEnter mass of bag in grams: \n");
+			try {
+				bagMass = new Mass(scanner.nextDouble());
+				if (bagMass.compareTo(Mass.ZERO)<=0) {
+					System.out.println("Bag mass must be positive. Please try again or enter No to cancel.\n");
+				}
+				else {
+					addBag.setWeight(bagMass);
+					waitingForValidInput = false;
+				}
+			}
+			catch (InputMismatchException e) {
+				System.out.println("\nInvalid entry, error occured. Please try again.\n");
+			}
+		}
+		
+		// initalize variables to add bags to scale
+		bag = new Bag(bagMass);
+		addBag.setAddedBag(0);
+		double bagWeight = bagMass.inMicrograms().doubleValue();
+		double difference = 0.0;
+		
+		while (addBag.getAddedBag() == false) {
+			Mass totalExpectedMass = new Mass(0.0);
+			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");			
+			try {
+				addBagToBaggingArea = scanner.nextLine().toUpperCase();
+				if (addBagToBaggingArea.equals(YES)) {
+					bronzeBaggingArea.addAnItem(bag);
+					// debugger
+					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
+					session.addTotalExpectedWeight(bagWeight);
+					totalExpectedMass = new Mass(session.getTotalExpectedWeight());
+					// debugger
+					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
+					difference = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+					System.out.println(difference); //remove before submitting
+					if (difference == 0) {
+						addBag.setAddedBag(bagWeight);
+						System.out.println("Your bag was added to the bagging area. No discrepancy detected.");
+					}
+					if (difference != 0) {
+							System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+							System.out.println("Weight discrepancy detected");
+							discrepancy.setDiscrepancy(true);
+					}
+					
+					if (addBag.getAddedBag() && bagWeight == 0) {
+						throw new InvalidArgumentSimulationException("Invalid option. Could not detect a bag added to the bagging area.");
+					}
+				}
+				else if (addBagToBaggingArea.equals(NO)) {
+					
+				}
+				else if (!addBagToBaggingArea.equals(YES) && !addBagToBaggingArea.equals(NO)) {
+					System.out.println("Please try again or enter No to cancel.\n");
+				}
+			}	
+			catch (InputMismatchException | OverloadedDevice e) {
+				System.out.println("Invalid entry, error occured. Please try again or enter No to cancel.\n");
+			}
+		}
+		
+		
 		//Ready for more commands from customer
 		
 		session.printMenu();
@@ -275,10 +360,7 @@ public class SelfCheckoutStationSoftware {
 		Barcode barcode = new Barcode(barcodeNumeral);
 		sessionSimulation.scanBarcodedProduct(barcode);	
 	}
-
-
-	
-
+  
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
 		// Barcode product should exist in database since they scanning into database.
@@ -319,7 +401,7 @@ public class SelfCheckoutStationSoftware {
 			
 			String choice = scanner.nextLine().toUpperCase();
 			switch(choice) {
-			case "YES":
+			case YES:
 				//4. Updates the expected weight from the bagging area.
 				BarcodedItem item = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 				selfCheckoutStationBronze.baggingArea.addAnItem(item);
@@ -345,7 +427,7 @@ public class SelfCheckoutStationSoftware {
 					
 				}
 				break;
-				case "NO":
+				case NO:
 					session.addTotalExpectedWeight(product.getExpectedWeight());
 					// Process bulky item
 					handleBulkyItem(product);
