@@ -1,5 +1,20 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -310,11 +325,7 @@ public class SelfCheckoutStationSoftware {
 				payWithCoinControl();
 				//break;
 			}
-			else if (choice == 4) { //Exit
-				System.out.println("Exiting System");
-				receiptPrinted = true;
-				System.exit(0);
-			}
+			
 			else if (choice == 4) { //Pay Via Banknnote
 				PayViaBanknote.payViaBanknote();
 				receiptPrinted = true;
@@ -330,7 +341,30 @@ public class SelfCheckoutStationSoftware {
 				receiptPrinted = true;
 				System.exit(0);
 			}
-			else if (choice == 7) { //Exit
+			else if (choice == 7) { //Remove Item
+				if(session.getOrderItem().size() == 0) {
+					System.out.println("Cannot remove from empty session list");
+					
+				}
+				else {
+					
+					System.out.print("Enter barcode to remove: ");
+					BigDecimal barcodeInput = scanner.nextBigDecimal();
+					
+					String barcodeInputString = barcodeInput.toString();
+
+					int i = 0;
+					Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+					for(char c : barcodeInputString.toCharArray()) {
+						barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+						i++;
+					}
+					Barcode barcode = new Barcode(barcodeNumeral);
+					sessionSimulation.removeItem(barcode);	
+					System.out.println("Successfully removed item, currently in session list: " + session.getOrderItem());
+				}
+			}
+			else if (choice == 8) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
