@@ -25,7 +25,7 @@ public class Bag extends Item {
 	
 	Mass mass = new Mass(0);
 
-	protected Bag(Mass mass) {
+	public Bag(Mass mass) {
 		super(mass);
 	}
 	
