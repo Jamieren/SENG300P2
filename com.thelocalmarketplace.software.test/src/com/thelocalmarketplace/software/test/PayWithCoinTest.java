@@ -148,19 +148,28 @@ public class PayWithCoinTest {
 	    assertEquals(expected, actual, smallValue);
 	}
 	
-	// might put in null pointer test
+	// tests a null coin when inputted alone
 	@Test
 	public void nullCoinInputtedAlone() {
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(nullCoin);
+		software.payWithCoin(coinsList);
+		
+		
+	}
+	
+	@Test
+	public void multipleNullCoinsInputted() {
+		
+	
+	@Test 
+	public void nullCoinInputtedWithValidCoin() {
 		session.addAmountDue(1.50);
 		ArrayList<Coin> coinsList = new ArrayList<>();
 		coinsList.add(loonie);
 		coinsList.add(nullCoin);
 		software.payWithCoin(coinsList);
-		
-	}
-	
-	@Test 
-	public void nullCoinInputtedWithValidCoin() {
 		
 	}
 	
