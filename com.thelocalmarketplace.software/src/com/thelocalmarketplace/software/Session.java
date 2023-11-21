@@ -69,7 +69,8 @@ public class Session {
     
     public BarcodedItem findItem(Barcode barcode) {
     	for(BarcodedItem item: orderItems) {
-    		if(item.getBarcode() == barcode) {
+    		
+    		if(item.getBarcode().toString().equals(barcode.toString())) {
     			return item;
     		}
     	}
@@ -151,7 +152,8 @@ public class Session {
 				+ "\t 4. Pay via Banknote\n"
 				+ "\t 5. Pay via Debit\n"
 				+ "\t 6. Pay via Credit\n"
-				+ "\t 7. Exit\n"
+				+ "\t 7. Remove an Item\n"
+				+ "\t 8. Exit\n"
 				+ "Choice: ");
 	}
          

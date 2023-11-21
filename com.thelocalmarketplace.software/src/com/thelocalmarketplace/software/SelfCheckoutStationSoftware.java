@@ -305,11 +305,7 @@ public class SelfCheckoutStationSoftware {
 				payWithCoinControl();
 				//break;
 			}
-			else if (choice == 4) { //Exit
-				System.out.println("Exiting System");
-				receiptPrinted = true;
-				System.exit(0);
-			}
+			
 			else if (choice == 4) { //Pay Via Banknnote
 				PayViaBanknote.payViaBanknote();
 				receiptPrinted = true;
@@ -325,7 +321,30 @@ public class SelfCheckoutStationSoftware {
 				receiptPrinted = true;
 				System.exit(0);
 			}
-			else if (choice == 7) { //Exit
+			else if (choice == 7) { //Remove Item
+				if(session.getOrderItem().size() == 0) {
+					System.out.println("Cannot remove from empty session list");
+					
+				}
+				else {
+					
+					System.out.print("Enter barcode to remove: ");
+					BigDecimal barcodeInput = scanner.nextBigDecimal();
+					
+					String barcodeInputString = barcodeInput.toString();
+
+					int i = 0;
+					Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+					for(char c : barcodeInputString.toCharArray()) {
+						barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+						i++;
+					}
+					Barcode barcode = new Barcode(barcodeNumeral);
+					sessionSimulation.removeItem(barcode);	
+					System.out.println("Successfully removed item, currently in session list: " + session.getOrderItem());
+				}
+			}
+			else if (choice == 8) { //Exit
 
 				System.out.println("Exiting System");
 				receiptPrinted = true;
