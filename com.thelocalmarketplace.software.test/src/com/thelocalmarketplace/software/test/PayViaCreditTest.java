@@ -16,9 +16,11 @@ package com.thelocalmarketplace.software.test;
 */
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.jjjwelectronics.card.Card;
 import com.thelocalmarketplace.software.PayViaCredit;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 
@@ -28,14 +30,19 @@ public class PayViaCreditTest {
 	public void CardExistsReturnsTrue() {
 		TheLocalMarketPlaceDatabase database = new TheLocalMarketPlaceDatabase();
 		PayViaCredit pay = new PayViaCredit();
-				assertTrue(pay.CreditSwipe(database));
+		Card card =  new Card("Visa", "2648264926081648", "John Smith", "123");
+		pay.card = card;
+		assertTrue(pay.CreditSwipe(database));
+		
 	}
 	
 	@Test
-	public void CardDoesnrExistReturnsFalse() {
+	public void CardDoesntExistReturnsFalse() {
 		TheLocalMarketPlaceDatabase database = new TheLocalMarketPlaceDatabase();
 		PayViaCredit pay = new PayViaCredit();
-				assertFalse(pay.CreditSwipe(database));
+		Card card = new Card("Blargh", "idk", "Bo Zo", "000");
+		pay.card = card;
+		assertFalse(pay.CreditSwipe(database));
 				
 	}
 }
