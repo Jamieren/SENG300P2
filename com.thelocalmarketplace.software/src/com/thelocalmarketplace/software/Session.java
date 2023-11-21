@@ -13,7 +13,7 @@ import com.jjjwelectronics.scanner.BarcodedItem;
 
 public class Session {
 
-	private static Session instance = null;
+	private static Session instance = null; 
 	private boolean isActive = false;
 	private static ArrayList<BarcodedItem> orderItems;
 	private static double totalExpectedWeight;
