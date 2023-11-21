@@ -39,6 +39,7 @@ import com.thelocalmarketplace.software.SelfCheckoutStationSoftware;
 import com.thelocalmarketplace.software.Session;
 import com.thelocalmarketplace.software.TheLocalMarketPlaceDatabase;
 
+import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import powerutility.PowerGrid;
 
 /**
@@ -61,7 +62,7 @@ public class PayWithCoinTest {
 	SelfCheckoutStationSoftware software;
 	Session session;
 	
-	Coin quarter, loonie, toonie, dime, nickel, nullCoin;
+	Coin quarter, loonie, toonie, dime, nickel;
 	
 	
 	@Before
@@ -90,7 +91,6 @@ public class PayWithCoinTest {
 		quarter = new Coin(Currency.getInstance("CAD"), new BigDecimal("0.25"));
 		loonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("1"));
 		toonie = new Coin(Currency.getInstance("CAD"), new BigDecimal("2"));
-		nullCoin = new Coin(null);
 		
 	}
 
@@ -138,6 +138,20 @@ public class PayWithCoinTest {
 	}
 	
 	@Test
+	public void lessAmountCoinsInputtedByOneCent() {
+		session.addAmountDue(0.76);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		coinsList.add(quarter);
+		software.payWithCoin(coinsList);
+		double expected = 0.01;
+		double actual = session.getAmountDue();
+		double smallValue = 0.0001;
+	    assertEquals(expected, actual, smallValue);
+	}
+	
+	@Test
 	public void zeroCoinsInputed() {
 		session.addAmountDue(0.54);
 		ArrayList<Coin> coinsList = new ArrayList<>();
@@ -149,30 +163,34 @@ public class PayWithCoinTest {
 	}
 	
 	// tests a null coin when inputted alone
-	@Test
+	@Test ( expected = NullPointerException.class)
 	public void nullCoinInputtedAlone() {
 		session.addAmountDue(1.50);
 		ArrayList<Coin> coinsList = new ArrayList<>();
-		coinsList.add(nullCoin);
-		software.payWithCoin(coinsList);
-		
-		
+		coinsList.add(null);
+		software.payWithCoin(coinsList);	
 	}
 	
-	@Test
+	@Test (expected = NullPointerException.class)
 	public void multipleNullCoinsInputted() {
-		
+		session.addAmountDue(1.50);
+		ArrayList<Coin> coinsList = new ArrayList<>();
+		coinsList.add(null);
+		coinsList.add(null);
+		software.payWithCoin(coinsList);
 	}
 		
 	
-	@Test 
+	@Test ( expected = NullPointerException.class)
 	public void nullCoinInputtedWithValidCoin() {
 		session.addAmountDue(1.50);
 		ArrayList<Coin> coinsList = new ArrayList<>();
 		coinsList.add(loonie);
-		coinsList.add(nullCoin);
+		coinsList.add(null);
 		software.payWithCoin(coinsList);
 		
 	}
+	
+	
 	
 }

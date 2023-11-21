@@ -547,7 +547,7 @@ public class SelfCheckoutStationSoftware {
                         return;
                     }
                 } else if (coin.getValue()== null) {
-                   throw new NullPointerSimulationException();
+                   throw new NullPointerException();
                 	//
                 }
                 else {
