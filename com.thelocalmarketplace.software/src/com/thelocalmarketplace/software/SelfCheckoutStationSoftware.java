@@ -52,10 +52,20 @@ import powerutility.NoPowerException;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import powerutility.PowerGrid;
 
-/*
- * SessionSimulation class contains the main method
- * Controls all the software and runs the simulation of a SelfCheckoutStation Session
- * */
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
 
 public class SelfCheckoutStationSoftware {
 
@@ -496,8 +506,6 @@ public class SelfCheckoutStationSoftware {
 					} catch (OverloadedDevice e) {
 						//do nothing
 					}
-					
-					
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
