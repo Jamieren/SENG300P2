@@ -35,13 +35,11 @@ import powerutility.PowerGrid;
  */
 public class PayDebitSwipe extends AbstractCardReader implements CardReaderListener{
 	
-	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
-	private CardReaderListener listener;
-	private CardIssuer bank = new CardIssuer("bank", 100);
+	private Card card; //= new Card("debit", "1234567890123456", "Bob", "123");
+	private CardIssuer bank; //= new CardIssuer("bank", 100);
 	private double amountDue;
 	private CardData data = null;
 	private boolean paymentGood = false;
-	private Session session;
 	
 	public boolean payByDebit(){
 		amountDue = Session.getInstance().getAmountDue();
