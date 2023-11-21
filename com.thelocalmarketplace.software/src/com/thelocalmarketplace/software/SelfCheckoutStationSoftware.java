@@ -277,6 +277,8 @@ public class SelfCheckoutStationSoftware {
 	}
 
 
+	
+
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
 		// Barcode product should exist in database since they scanning into database.

@@ -278,6 +278,7 @@ public class SoftwareTesting {
         ByteArrayInputStream in = new ByteArrayInputStream(simulatedInput.getBytes());
         System.setIn(in);
         
+        
         sessionSimulation.scanBarcodedProduct(testBarcode);
 	}
 	
