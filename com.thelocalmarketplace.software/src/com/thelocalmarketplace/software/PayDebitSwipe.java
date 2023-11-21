@@ -1,10 +1,13 @@
 package com.thelocalmarketplace.software;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
+import com.jjjwelectronics.card.AbstractCardReader;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
 import com.jjjwelectronics.card.Card.CardSwipeData;
@@ -29,45 +32,66 @@ SENG 300 Project Iteration 2
  * Responsible for allowing customer to pay by debit via swipe
  */
 
-public class PayDebitSwipe implements CardReaderListener{
-	
-	private Card card;
-	private CardReaderListener cardReader;
-	private CardIssuer bank;
+public class PayDebitSwipe extends AbstractCardReader implements CardReaderListener{
+
+	private Card card = new Card("debit", "1234567890123456", "Bob", "123");
+	private CardReaderListener listener;
+	private CardIssuer bank = new CardIssuer("bank", 100);
 	private double amountDue;
+	private CardData data = null;
+	boolean paymentGood = false;
 	
 	public boolean payByDebit() {
 		amountDue = Session.getInstance().getAmountDue();
 		System.out.println("Please swipe your card: ");
-		cardSwipe(card);
-		String cardNumber = this.card.number;
-		long holdNumber = bank.authorizeHold(cardNumber, amountDue);
-		
-		if(holdNumber != -1) {
-			boolean paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
-			bank.releaseHold(cardNumber, holdNumber);
-			
-			return paymentGood;
-		}
-		return false;
-	}
-	
-	private void cardSwipe(Card card) {
 		try {
-			Card.CardSwipeData data = card.swipe();
-			System.out.println("Card has been swiped");
-			
+			data = swipe(card);
+			if(signatureVerify()){
+				//theDataFromACardHasBeenRead(data);
+			}
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return paymentGood;
 	}
 	
-	private String signaturePrompt() {
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Please sign here: ");
-		return scanner.nextLine();
+	/**private Card.CardSwipeData cardSwipe(Card card) {
+		try {
+			data = card.swipe();
+			System.out.println("Card has been swiped");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return data;
+	}**/
+	
+	private boolean signatureVerify() {
+		System.out.println("Please sign here: \n");
+		return true;
+	}
+	
+	private boolean amountPaid(String cardNumber, CardData data) {
+		long holdNumber = 0;
+
+		holdNumber = bank.authorizeHold(cardNumber, amountDue);
+		System.out.println(amountDue);
+
+		if(holdNumber != -1) {
+			System.out.println("Hold authorized. Hold Number: " + holdNumber);
+			paymentGood = bank.postTransaction(cardNumber, holdNumber, amountDue);
+			bank.releaseHold(cardNumber, holdNumber);
+			
+			if(paymentGood) {
+				System.out.println("Success");
+			}else {
+				System.out.println("Failed");
+			}
+		}
+		return paymentGood;
 	}
 
 	@Override
@@ -102,10 +126,17 @@ public class PayDebitSwipe implements CardReaderListener{
 
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data) {
-		// TODO Auto-generated method stub
+		Calendar expiry = null;
+		String cardNumber = data.getNumber();
+		String cardType = data.getType();
+		String cardholder = data.getCardholder();
+		System.out.println("stopped");
+		String cvv = null;
+		expiry = expiry.getInstance();
 		
+		bank.addCardData(cardNumber, cardholder, expiry, cvv, 50);
+		amountPaid(cardNumber, data);
 	}
-
 }
 
 

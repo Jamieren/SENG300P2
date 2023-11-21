@@ -336,11 +336,13 @@ public class SelfCheckoutStationSoftware {
 				receiptPrinted = true;
 				System.exit(0);
 			}
+
 			else if (choice == 6) { //Pay Via Credit
 				sessionSimulation.payViaCredit();
 				receiptPrinted = true;
 				System.exit(0);
 			}
+			
 			else if (choice == 7) { //Remove Item
 				if(session.getOrderItem().size() == 0) {
 					System.out.println("Cannot remove from empty session list");
@@ -365,11 +367,11 @@ public class SelfCheckoutStationSoftware {
 				}
 			}
 			else if (choice == 8) { //Exit
-
 				System.out.println("Exiting System");
 				receiptPrinted = true;
 				System.exit(0);
 			}
+		 
 			if(discrepancy.getDiscrepancy() == false) {
 				session.printMenu();
 				choice = scanner.nextInt();
@@ -599,10 +601,10 @@ public class SelfCheckoutStationSoftware {
 		payment.payByDebit();
 		if(paymentGood) {
 			System.out.println("Payment successful! Amount Due: 0");
-			//session.printReceipt();
 		}else {
-			System.out.println("Payment was unsuccessful\n");
+			System.out.println("Payment was unsuccessful");
 			System.out.println("Please try again or choose a different payment method\n");
+			session.printMenu();
 		}
 	}
 	
