@@ -8,19 +8,20 @@ import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardSwipeData;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
-/**
- * @author Akashdeep Grewal 30179657
- * @author Amira Wishah 30182579
- * @author Ananya Jain 30196069
- * @author Danny Ly 30127144
- * @author Hillary Nguyen 30161137
- * @author Johnny Tran 30140472 
- * @author Minori Olguin 30035923
- * @author Rhett Bramfield 30170520
- * @author Wyatt Deichert 30174611
- * 
- * Responsible for allowing customer to pay by credit via swipe
- */
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
 
 public class PayViaCredit extends AbstractCardReader{
 	
