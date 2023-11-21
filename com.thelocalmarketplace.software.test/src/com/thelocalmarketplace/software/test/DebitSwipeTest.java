@@ -1,6 +1,8 @@
 package com.thelocalmarketplace.software.test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,15 +44,27 @@ public class DebitSwipeTest {
 	
 	@Before
 	public void setup() {
+		simulation = new SelfCheckoutStationSoftware();
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureBanknoteDenominations(new BigDecimal[] {new BigDecimal("5.0")});
+		SelfCheckoutStationBronze.configureBanknoteStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinDenominations(new BigDecimal[] {new BigDecimal("0.05"), new BigDecimal("0.10"), new BigDecimal("0.25"), new BigDecimal("1"), new BigDecimal("2")});
+		SelfCheckoutStationBronze.configureCurrency(Currency.getInstance("CAD"));
+		SelfCheckoutStationBronze.configureCoinStorageUnitCapacity(10);
+		SelfCheckoutStationBronze.configureCoinTrayCapacity(20);
+		SelfCheckoutStationBronze.configureCoinDispenserCapacity(20);
+		
+		simulation.getDatabase();
+		simulation.initSelfStationBronze();
+		simulation.initSession();
+		
+		simulation = new SelfCheckoutStationSoftware();
 		session = Session.getInstance();
 		database = new TheLocalMarketPlaceDatabase();
 		orderItems = new ArrayList<BarcodedItem>();
 
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 
-		SelfCheckoutStationBronze bronzeStation = new SelfCheckoutStationBronze();
-		bronzeStation.plugIn(PowerGrid.instance());
-		bronzeStation.turnOn();
 				
 		PayDebitSwipe payment = new PayDebitSwipe();
 	}
