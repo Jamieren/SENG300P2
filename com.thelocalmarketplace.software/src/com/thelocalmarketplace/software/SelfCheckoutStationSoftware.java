@@ -3,8 +3,10 @@ package com.thelocalmarketplace.software;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import com.jjjwelectronics.Mass;
@@ -26,6 +28,9 @@ import com.tdc.coin.Coin;
 import com.tdc.coin.CoinDispenserBronze;
 import com.tdc.coin.CoinDispenserGold;
 import com.tdc.coin.CoinSlot;
+import com.tdc.banknote.Banknote;
+import com.tdc.banknote.BanknoteDispenserBronze;
+import com.tdc.banknote.BanknoteDispenserGold;
 import com.tdc.banknote.BanknoteValidator;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
@@ -541,8 +546,9 @@ public class SelfCheckoutStationSoftware {
                     } else if (session.getAmountDue() < 0) {
                         System.out.println("Amount paid over, change return");
                         session.getOrderItem().clear();
-
                         double returnChange = -(session.getAmountDue());
+                        
+                        returnChange();
                         System.out.print("Change returned: " + returnChange);
                         return;
                     }
@@ -558,7 +564,205 @@ public class SelfCheckoutStationSoftware {
             System.out.println("No amount due");
         }
     }
-	
+    
+    public void returnChange()  {
+		List<BigDecimal> denoms = Arrays.asList(
+                new BigDecimal("5.0"), new BigDecimal("10.0"), new BigDecimal("20.0"));
+		
+		BanknoteDispenserGold banknoteDispenser = new BanknoteDispenserGold();
+		BanknoteDispenserBronze banknoteDispenserBronze = new BanknoteDispenserBronze();
+		
+		
+		
+		
+		// converts change into banknotes until coins are necessary
+		double changeDue = -(session.getAmountDue());
+		
+		int changeInt = (int)changeDue * 100;
+		
+		Banknote twenty = new Banknote(Currency.getInstance("CAD"), denoms.get(2));
+        Banknote ten = new Banknote(Currency.getInstance("CAD"), denoms.get(1));
+        Banknote five = new Banknote(Currency.getInstance("CAD"), denoms.get(0));
+        
+        if(changeInt >= 2000) {
+        	int twentyCount = (changeInt / 2000);
+        	changeInt = (changeInt / 2000); 
+        	for(int i = twentyCount; i > 0; i --) {
+        		try {
+					banknoteDispenser.receive(twenty);
+					try {
+						banknoteDispenser.emit();
+						changeInt = (changeInt / 2000); 
+						changeDue -= 20;
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		
+        	}
+        }
+        
+        if (changeInt >= 1000) {
+        	int tenCount = (changeInt / 1000);
+        	
+        	for(int i = tenCount; i > 0; i --) {
+        		try {
+					banknoteDispenser.receive(ten);
+					try {
+						banknoteDispenser.emit();
+						changeInt = (changeInt / 1000);
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					changeDue -= 10;
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	}
+        }
+        
+        if (changeInt >= 500) {
+        	int fiveCount = (changeInt / 500);
+        	
+        	for(int i = fiveCount; i > 0; i --) {
+        		try {
+					banknoteDispenser.receive(five);
+					try {
+						banknoteDispenser.emit();
+						changeInt = changeInt / 500;
+						changeDue -= 0.25;
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					changeDue -= 5;
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	}
+        }
+		
+		int coinCapacity = 1000;
+		
+		
+		
+		
+		bronzeDispenser = new CoinDispenserBronze(coinCapacity);
+		goldDispenser = new CoinDispenserGold(coinCapacity);
+		// these are used as a sub until i can figure out how to access specified denomination of gold and bronze dispensers
+		BigDecimal denomValueBronze = new BigDecimal("0.25");
+		BigDecimal denomValueGold = new BigDecimal("1");
+		
+		Coin loonie = new Coin(denomValueGold);
+		Coin quarter = new Coin(denomValueBronze);
+		
+		if(changeInt >= 100) {
+			int loonieCount = changeInt / 100;
+			
+			
+			for(int i = loonieCount; i > 0; i --) {
+        		try {
+					goldDispenser.receive(loonie);
+					try {
+						goldDispenser.emit();
+						changeInt = changeInt / 100;
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					changeDue -= 0.05;
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		try {
+					bronzeDispenser.receive(loonie);
+					try {
+						bronzeDispenser.emit();
+						changeInt = changeInt / 100;
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		
+        	}
+			
+			
+		}
+		
+		if(changeInt >= 25) {
+			int quarterCount = changeInt / 25;
+			
+			
+			for(int i = quarterCount; i > 0; i --) {
+				try {
+					bronzeDispenser.receive(quarter);
+					try {
+						bronzeDispenser.emit();
+						changeInt = changeInt / 25;
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					goldDispenser.receive(quarter);
+					
+					changeDue -= 0.25;
+					try {
+						if(goldDispenser.size() > 0){
+						goldDispenser.emit();
+						changeInt = changeInt / 25;
+						}
+					} catch (NoCashAvailableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (CashOverloadException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DisabledException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+
+	}
 	public void payViaDebit() {
 		boolean paymentGood = false;
 		PayDebitSwipe payment = new PayDebitSwipe();
