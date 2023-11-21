@@ -1,3 +1,16 @@
+/**
+ * @author Akashdeep Grewal 30179657
+ * @author Amira Wishah 30182579
+ * @author Ananya Jain 30196069
+ * @author Danny Ly 30127144
+ * @author Hillary Nguyen 30161137
+ * @author Johnny Tran 30140472 
+ * @author Minori Olguin 3003592
+ * @author Rhett Bramfield 30170520
+ * @author Wyatt Deichert 30174611
+ * @author Adrian Brisebois 30170764
+
+**/
 package com.thelocalmarketplace.software.test;
 
 import static org.junit.Assert.assertEquals;
@@ -134,6 +147,15 @@ public class PayWithCoinTest {
 	}
 	
 	// might put in null pointer test
-
+	@Test
+	public void nullCoinInputtedAlone() {
+		session.addAmountDue(.75);
+		
+	}
+	
+	@Test 
+	public void nullCoinInputtedWithValidCoin() {
+		
+	}
 	
 }
