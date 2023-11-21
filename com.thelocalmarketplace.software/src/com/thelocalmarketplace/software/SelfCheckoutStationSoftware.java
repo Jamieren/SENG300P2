@@ -617,7 +617,7 @@ public class SelfCheckoutStationSoftware {
 		}else {
 			System.out.println("Payment was unsuccessful");
 			System.out.println("Please try again or choose a different payment method\n");
-			session.printMenu();
+			this.getSession().printMenu();
 		}
 	}
 	
