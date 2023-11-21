@@ -56,47 +56,4 @@ public class AddOwnBag {
 		return addedBag;
 	}
 
-//	public void addOwnBag(Bag bag) throws OverloadedDevice {
-//		
-//		SelfCheckoutStationBronze.resetConfigurationToDefaults();
-//		
-//		PowerGrid.engageUninterruptiblePowerSource();
-//
-//		bronzeBaggingArea = new ElectronicScaleBronze();
-//		bronzeBaggingArea.plugIn(PowerGrid.instance());
-//		bronzeBaggingArea.turnOn();
-//		
-//		session = new Session();
-//		bag = new Bag(weight);
-//		double bagWeight = weight.inMicrograms().doubleValue();
-//		double difference = 0;
-//		Mass totalExpectedMass = new Mass(0.0);
-//		boolean addBagDiscrepancy = false;
-//		
-//		if (addedBag == false) {
-//			bronzeBaggingArea.addAnItem(bag);
-//			System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
-//			session.addTotalExpectedWeight(bagWeight);
-//			totalExpectedMass = new Mass(session.getTotalExpectedWeight());
-//			System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
-//			difference = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-//			System.out.println(difference);
-//		}
-//			
-//		if (difference == 0) {
-//			addedBag = true;
-//			System.out.println("Your bag was added to the bagging area. No discrepancy detected.");
-//			addBagDiscrepancy = false;
-//		}
-//
-//		if (difference != 0) {
-//				System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-//				System.out.println("Weight discrepancy detected");
-//				discrepancy.setDiscrepancy(true);
-//		}
-//		
-//		if (addedBag == true && weight.compareTo(Mass.ZERO) == 0) {
-//			throw new InvalidArgumentSimulationException("Invalid option. Could not detect a bag added to the bagging area.");
-//		}
-//	}
 }
