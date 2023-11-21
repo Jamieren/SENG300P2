@@ -1,5 +1,20 @@
 package com.thelocalmarketplace.software;
 
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,6 +25,7 @@ import java.util.Scanner;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Numeral;
 import com.jjjwelectronics.OverloadedDevice;
+import com.jjjwelectronics.card.CardReaderBronze;
 import com.jjjwelectronics.card.CardReaderGold;
 import com.jjjwelectronics.printer.ReceiptPrinterBronze;
 import com.jjjwelectronics.scale.ElectronicScaleBronze;
@@ -32,14 +48,25 @@ import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
 
+import powerutility.NoPowerException;
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import ca.ucalgary.seng300.simulation.NullPointerSimulationException;
 import powerutility.PowerGrid;
 
-/*
- * SessionSimulation class contains the main method
- * Controls all the software and runs the simulation of a SelfCheckoutStation Session
- * */
+/*SENG 300 Project Iteration 2
+
+@author Akashdeep Grewal 30179657
+@author Amira Wishah 30182579
+@author Ananya Jain 30196069
+@author Danny Ly 30127144
+@author Hillary Nguyen 30161137
+@author Johnny Tran 30140472 
+@author Minori Olguin 30035923
+@author Rhett Bramfield 30170520
+@author Wyatt Deichert 30174611
+@author Zhenhui Ren 30139966
+@author Adrian Brisebois 30170764
+*/
 
 public class SelfCheckoutStationSoftware {
 
@@ -71,7 +98,7 @@ public class SelfCheckoutStationSoftware {
 
 	private static BarcodeScannerBronze bronzeHandheldScanner;
 	
-	private static CardReaderGold goldCardReader;
+	private static CardReaderBronze bronzeCardReader;
 
 	private static ReceiptPrinterBronze bronzePrinter;
 	
@@ -144,7 +171,9 @@ public class SelfCheckoutStationSoftware {
 		String addBagToBaggingArea = null;
 		AddOwnBag addBag = new AddOwnBag();
 		Bag bag;
-		Mass bagMass = new Mass(0.0);
+		Mass bagMass = new Mass(1.1);
+		double microGramConversion = 1000000;
+
 		
 		while (waitingForValidInput) {
 			System.out.println("\nWould you like to use your own bags? Enter Yes or No: \n");
@@ -166,13 +195,19 @@ public class SelfCheckoutStationSoftware {
 		while (waitingForValidInput == true) {
 			System.out.println("\nEnter mass of bag in grams: \n");
 			try {
-				bagMass = new Mass(scanner.nextDouble());
-				if (bagMass.compareTo(Mass.ZERO)<=0) {
+				
+				bagMass = new Mass(scanner.nextDouble());				
+				
+				if (bagMass.compareTo(Mass.ZERO)==-1) {
 					System.out.println("Bag mass must be positive. Please try again or enter No to cancel.\n");
 				}
-				else {
+				else if (bagMass.compareTo(Mass.ZERO)==0) {
+					System.out.println("Bag mass cannot be zero. Please try again or enter No to cancel.\n");
+				}
+				else if (bagMass.compareTo(Mass.ZERO)==1) {
 					addBag.setWeight(bagMass);
 					waitingForValidInput = false;
+					break;
 				}
 			}
 			catch (InputMismatchException e) {
@@ -183,31 +218,28 @@ public class SelfCheckoutStationSoftware {
 		// initalize variables to add bags to scale
 		bag = new Bag(bagMass);
 		addBag.setAddedBag(0);
-		double bagWeight = bagMass.inMicrograms().doubleValue();
-		double difference = 0.0;
-		
+		double bagWeight = bagMass.inMicrograms().doubleValue()/microGramConversion;
+		BigDecimal difference = new BigDecimal(0.0);
+		scanner.nextLine();
+
 		while (addBag.getAddedBag() == false) {
 			Mass totalExpectedMass = new Mass(0.0);
-			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");			
+			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");	
 			try {
 				addBagToBaggingArea = scanner.nextLine().toUpperCase();
+
 				if (addBagToBaggingArea.equals(YES)) {
 					bronzeBaggingArea.addAnItem(bag);
-					// debugger
-					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
 					session.addTotalExpectedWeight(bagWeight);
 					totalExpectedMass = new Mass(session.getTotalExpectedWeight());
-					// debugger
-					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
-					difference = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-					System.out.println(difference); //remove before submitting
-					if (difference == 0) {
+					difference = totalExpectedMass.inGrams().subtract(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+					if (new Mass(difference).compareTo(bronzeBaggingArea.getSensitivityLimit())==-1) {
 						addBag.setAddedBag(bagWeight);
 						System.out.println("Your bag was added to the bagging area. No discrepancy detected.");
-					}
-					if (difference != 0) {
-							System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-							System.out.println("Weight discrepancy detected");
+						break;
+					} 
+					if (!(new Mass(difference).compareTo(bronzeBaggingArea.getSensitivityLimit())==-1)) {
+							System.out.println("Weight discrepancy detected.");
 							discrepancy.setDiscrepancy(true);
 					}
 					
@@ -216,22 +248,22 @@ public class SelfCheckoutStationSoftware {
 					}
 				}
 				else if (addBagToBaggingArea.equals(NO)) {
-					
+					break;
 				}
-				else if (!addBagToBaggingArea.equals(YES) && !addBagToBaggingArea.equals(NO)) {
+				else if (!addBagToBaggingArea.equals(YES) || !addBagToBaggingArea.equals(NO)) {
 					System.out.println("Please try again or enter No to cancel.\n");
 				}
 			}	
 			catch (InputMismatchException | OverloadedDevice e) {
-				System.out.println("Invalid entry, error occured. Please try again or enter No to cancel.\n");
+				System.out.println("Invalid entry, error occured. Bag too heavy. Please try again or enter No to cancel.\n");
 			}
 		}
 		
 		
 		//Ready for more commands from customer
 		
-		session.printMenu();
-		choice = scanner.nextInt();
+//		session.printMenu();
+//		choice = scanner.nextInt();
 
 		boolean receiptPrinted = false;
 		while(receiptPrinted == false) {
@@ -257,7 +289,7 @@ public class SelfCheckoutStationSoftware {
 					else {
 						System.out.print("\n============================\n"
 								 + "Invalid selection, please try again.\n");
-						session.weightDiscrepancyMessage();
+						session.weightDiscrepancyMessage(); 
 						weightChoice = scanner.nextInt();
 					}
 				}
@@ -306,11 +338,7 @@ public class SelfCheckoutStationSoftware {
 				payWithCoinControl();
 				//break;
 			}
-			else if (choice == 4) { //Exit
-				System.out.println("Exiting System");
-				receiptPrinted = true;
-				System.exit(0);
-			}
+			
 			else if (choice == 4) { //Pay Via Banknnote
 				PayViaBanknote.payViaBanknote();
 				receiptPrinted = true;
@@ -321,17 +349,42 @@ public class SelfCheckoutStationSoftware {
 				receiptPrinted = true;
 				System.exit(0);
 			}
+
 			else if (choice == 6) { //Pay Via Credit
 				sessionSimulation.payViaCredit();
 				receiptPrinted = true;
 				System.exit(0);
 			}
-			else if (choice == 7) { //Exit
+			
+			else if (choice == 7) { //Remove Item
+				if(session.getOrderItem().size() == 0) {
+					System.out.println("Cannot remove from empty session list");
+					
+				}
+				else {
+					
+					System.out.print("Enter barcode to remove: ");
+					BigDecimal barcodeInput = scanner.nextBigDecimal();
+					
+					String barcodeInputString = barcodeInput.toString();
 
+					int i = 0;
+					Numeral[] barcodeNumeral = new Numeral[barcodeInputString.length()];
+					for(char c : barcodeInputString.toCharArray()) {
+						barcodeNumeral[i] = Numeral.valueOf(Byte.valueOf(String.valueOf(c)));
+						i++;
+					}
+					Barcode barcode = new Barcode(barcodeNumeral);
+					sessionSimulation.removeItem(barcode);	
+					System.out.println("Successfully removed item, currently in session list: " + session.getOrderItem());
+				}
+			}
+			else if (choice == 8) { //Exit
 				System.out.println("Exiting System");
 				receiptPrinted = true;
 				System.exit(0);
 			}
+		 
 			if(discrepancy.getDiscrepancy() == false) {
 				session.printMenu();
 				choice = scanner.nextInt();
@@ -361,7 +414,7 @@ public class SelfCheckoutStationSoftware {
 		Barcode barcode = new Barcode(barcodeNumeral);
 		sessionSimulation.scanBarcodedProduct(barcode);	
 	}
-
+  
 	public void removeItem(Barcode barcode) {
 		// Assumption is customer has already scanned item, then decided they did not want it anymore, so item is already part of session list and bagging area list.
 		// Barcode product should exist in database since they scanning into database.
@@ -454,8 +507,6 @@ public class SelfCheckoutStationSoftware {
 					} catch (OverloadedDevice e) {
 						//do nothing
 					}
-					
-					
 					break;
 					default:
 					System.out.println("Invalid option. " + product.getDescription() + " not added to bagging area");
@@ -561,14 +612,25 @@ public class SelfCheckoutStationSoftware {
 	
 	public void payViaDebit() {
 		boolean paymentGood = false;
+		SelfCheckoutStationSoftware.bronzeCardReader = new CardReaderBronze();
+		SelfCheckoutStationSoftware.bronzeCardReader.plugIn(PowerGrid.instance());
+		SelfCheckoutStationSoftware.bronzeCardReader.turnOn();
+		
 		PayDebitSwipe payment = new PayDebitSwipe();
-		payment.payByDebit();
+		
+		if(bronzeCardReader.isPoweredUp()) {
+			paymentGood = payment.payByDebit();
+		}else {
+			System.out.println("Card reader is off");
+			throw new NoPowerException();
+		}
+		
 		if(paymentGood) {
 			System.out.println("Payment successful! Amount Due: 0");
-			//session.printReceipt();
 		}else {
-			System.out.println("Payment was unsuccessful\n");
+			System.out.println("Payment was unsuccessful");
 			System.out.println("Please try again or choose a different payment method\n");
+			this.getSession().printMenu();
 		}
 	}
 	
