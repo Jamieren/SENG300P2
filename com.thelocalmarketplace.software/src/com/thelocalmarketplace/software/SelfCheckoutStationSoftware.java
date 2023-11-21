@@ -143,7 +143,9 @@ public class SelfCheckoutStationSoftware {
 		String addBagToBaggingArea = null;
 		AddOwnBag addBag = new AddOwnBag();
 		Bag bag;
-		Mass bagMass = new Mass(0.0);
+		Mass bagMass = new Mass(1.1);
+		double microGramConversion = 1000000;
+
 		
 		while (waitingForValidInput) {
 			System.out.println("\nWould you like to use your own bags? Enter Yes or No: \n");
@@ -165,13 +167,19 @@ public class SelfCheckoutStationSoftware {
 		while (waitingForValidInput == true) {
 			System.out.println("\nEnter mass of bag in grams: \n");
 			try {
-				bagMass = new Mass(scanner.nextDouble());
-				if (bagMass.compareTo(Mass.ZERO)<=0) {
+				
+				bagMass = new Mass(scanner.nextDouble());				
+				
+				if (bagMass.compareTo(Mass.ZERO)==-1) {
 					System.out.println("Bag mass must be positive. Please try again or enter No to cancel.\n");
 				}
-				else {
+				else if (bagMass.compareTo(Mass.ZERO)==0) {
+					System.out.println("Bag mass cannot be zero. Please try again or enter No to cancel.\n");
+				}
+				else if (bagMass.compareTo(Mass.ZERO)==1) {
 					addBag.setWeight(bagMass);
 					waitingForValidInput = false;
+					break;
 				}
 			}
 			catch (InputMismatchException e) {
@@ -182,31 +190,28 @@ public class SelfCheckoutStationSoftware {
 		// initalize variables to add bags to scale
 		bag = new Bag(bagMass);
 		addBag.setAddedBag(0);
-		double bagWeight = bagMass.inMicrograms().doubleValue();
-		double difference = 0.0;
-		
+		double bagWeight = bagMass.inMicrograms().doubleValue()/microGramConversion;
+		BigDecimal difference = new BigDecimal(0.0);
+		scanner.nextLine();
+
 		while (addBag.getAddedBag() == false) {
 			Mass totalExpectedMass = new Mass(0.0);
-			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");			
+			System.out.println("Please place your bag in the bagging Area. Enter Yes or No: \n");	
 			try {
 				addBagToBaggingArea = scanner.nextLine().toUpperCase();
+
 				if (addBagToBaggingArea.equals(YES)) {
 					bronzeBaggingArea.addAnItem(bag);
-					// debugger
-					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
 					session.addTotalExpectedWeight(bagWeight);
 					totalExpectedMass = new Mass(session.getTotalExpectedWeight());
-					// debugger
-					System.out.println("Expected Weight: " + totalExpectedMass.inGrams() + "OnBaggingArea: " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams() );
-					difference = totalExpectedMass.inGrams().compareTo(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-					System.out.println(difference); //remove before submitting
-					if (difference == 0) {
+					difference = totalExpectedMass.inGrams().subtract(bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
+					if (new Mass(difference).compareTo(bronzeBaggingArea.getSensitivityLimit())==-1) {
 						addBag.setAddedBag(bagWeight);
 						System.out.println("Your bag was added to the bagging area. No discrepancy detected.");
-					}
-					if (difference != 0) {
-							System.out.println("Test: " + totalExpectedMass.inGrams() + "/" + session.getTotalExpectedWeight() + " : " + bronzeBaggingArea.getCurrentMassOnTheScale().inGrams());
-							System.out.println("Weight discrepancy detected");
+						break;
+					} 
+					if (!(new Mass(difference).compareTo(bronzeBaggingArea.getSensitivityLimit())==-1)) {
+							System.out.println("Weight discrepancy detected.");
 							discrepancy.setDiscrepancy(true);
 					}
 					
@@ -215,22 +220,22 @@ public class SelfCheckoutStationSoftware {
 					}
 				}
 				else if (addBagToBaggingArea.equals(NO)) {
-					
+					break;
 				}
-				else if (!addBagToBaggingArea.equals(YES) && !addBagToBaggingArea.equals(NO)) {
+				else if (!addBagToBaggingArea.equals(YES) || !addBagToBaggingArea.equals(NO)) {
 					System.out.println("Please try again or enter No to cancel.\n");
 				}
 			}	
 			catch (InputMismatchException | OverloadedDevice e) {
-				System.out.println("Invalid entry, error occured. Please try again or enter No to cancel.\n");
+				System.out.println("Invalid entry, error occured. Bag too heavy. Please try again or enter No to cancel.\n");
 			}
 		}
 		
 		
 		//Ready for more commands from customer
 		
-		session.printMenu();
-		choice = scanner.nextInt();
+//		session.printMenu();
+//		choice = scanner.nextInt();
 
 		boolean receiptPrinted = false;
 		while(receiptPrinted == false) {
