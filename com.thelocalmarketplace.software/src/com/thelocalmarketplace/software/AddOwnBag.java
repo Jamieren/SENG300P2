@@ -30,6 +30,7 @@ public class AddOwnBag {
 	
 	public void setAddedBag(double weight) {
 		if (weight > 0.0) {addedBag = true; }
+		else {addedBag = false; }
 	}
 
 	public Mass getWeight() {
@@ -40,7 +41,7 @@ public class AddOwnBag {
 		return addedBag;
 	}
 
-	public void addOwnBag() throws OverloadedDevice {
+	public void addOwnBag(Bag bag) throws OverloadedDevice {
 		
 		SelfCheckoutStationBronze.resetConfigurationToDefaults();
 		
@@ -55,6 +56,7 @@ public class AddOwnBag {
 		double bagWeight = weight.inMicrograms().doubleValue();
 		double difference = 0;
 		Mass totalExpectedMass = new Mass(0.0);
+		boolean addBagDiscrepancy = false;
 		
 		if (addedBag == false) {
 			bronzeBaggingArea.addAnItem(bag);
@@ -69,6 +71,7 @@ public class AddOwnBag {
 		if (difference == 0) {
 			addedBag = true;
 			System.out.println("Your bag was added to the bagging area. No discrepancy detected.");
+			addBagDiscrepancy = false;
 		}
 
 		if (difference != 0) {
